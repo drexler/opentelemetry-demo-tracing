@@ -1,0 +1,17 @@
+version: "3"
+
+services:
+  grpc-server:
+    container_name: grpc-server
+    build:
+      context: ./services/server
+      dockerfile: Dockerfile  
+  
+  grpc-client:
+    container_name: grpc-client
+    build:
+      context: ./services/client
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+
