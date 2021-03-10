@@ -14,3 +14,11 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
+
+  ach-processor:
+    container_name: ach-processor
+    build:
+      context: ./services/ach-processor
+      dockerfile: Dockerfile
+    ports:
+      - "3050:3050"
