@@ -1,19 +1,31 @@
 syntax = "proto3"; 
 
+import "google/protobuf/empty.proto";
+
 package  otel.demo.proto.employees.v1;
 
-service Employee {
-    rpc GetEmployee(EmployeeRequest) returns (EmployeeResponse) {}
+service EmployeeService {
+    rpc GetAll(google.protobuf.Empty) returns (GetAllEmployeeServiceResponse);
+    rpc GetOne(GetOneEmployeeServiceRequest) returns (GetOneEmployeeServiceResponse);
 }
 
-message EmployeeRequest {
-    string name = 1;  // Is this needed ???
+message GetAllEmployeeServiceResponse {
+    repeated Employee employees = 1;
 }
 
-message EmployeeResponse {
-    string name = 1; 
-    string address = 2; 
-    string ssn = 3; 
-    string maritalStatus = 4;
+message Employee {
+    string id = 1;
+    string name = 2; 
+    string address = 3; 
+    string ssn = 4; 
+    string marital_status = 5;
+}
+
+message GetOneEmployeeServiceRequest {
+    string employee_id = 1;
+}
+
+message GetOneEmployeeServiceResponse {
+    Employee employee = 1;
 }
 
