@@ -1,0 +1,39 @@
+syntax = "proto3"; 
+
+import "google/protobuf/empty.proto";
+
+package  otel.demo.proto.paychecks.v1;
+
+service PaycheckService {
+    rpc GetAll(google.protobuf.Empty) returns (GetAllPaycheckServiceResponse);
+    rpc GetOne(GetOnePaycheckServiceRequest) returns (GetOnePaycheckServiceResponse);
+    rpc GetEmployeeChecks(GetEmployeeChecksPaycheckServiceRequest) returns (GetEmployeeChecksPaycheckServiceResponse);
+}
+
+message Paycheck {
+    string id = 1;
+    string employee_id = 2; 
+    float amount = 3;
+    float work_hours = 4;
+}
+
+message GetAllPaycheckServiceResponse {
+    repeated Paycheck paychecks = 1;
+}
+
+message GetOnePaycheckServiceRequest {
+    string paycheck_id = 1;
+}
+
+message GetOnePaycheckServiceResponse {
+    Paycheck paycheck = 1;
+}
+
+message GetEmployeeChecksPaycheckServiceRequest {
+    string employee_id = 1;
+}
+
+message GetEmployeeChecksPaycheckServiceResponse {
+    repeated Paycheck paychecks = 1;
+}
+
