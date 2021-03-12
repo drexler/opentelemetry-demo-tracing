@@ -5,9 +5,9 @@ import "google/protobuf/empty.proto";
 package  otel.demo.proto.paychecks.v1;
 
 service PaycheckService {
-    rpc GetAll(google.protobuf.Empty) returns (GetAllPaycheckServiceResponse);
-    rpc GetOne(GetOnePaycheckServiceRequest) returns (GetOnePaycheckServiceResponse);
-    rpc GetEmployeeChecks(GetEmployeeChecksPaycheckServiceRequest) returns (GetEmployeeChecksPaycheckServiceResponse);
+    rpc GetAllPaychecks(google.protobuf.Empty) returns (GetAllPaychecksResponse);
+    rpc GetPaycheck(GetPaycheckRequest) returns (GetPaycheckResponse);
+    rpc GetEmployeePaychecks(GetEmployeePaychecksRequest) returns (GetEmployeePaychecksResponse);
 }
 
 message Paycheck {
@@ -17,23 +17,23 @@ message Paycheck {
     float work_hours = 4;
 }
 
-message GetAllPaycheckServiceResponse {
+message GetAllPaychecksResponse {
     repeated Paycheck paychecks = 1;
 }
 
-message GetOnePaycheckServiceRequest {
+message GetPaycheckRequest {
     string paycheck_id = 1;
 }
 
-message GetOnePaycheckServiceResponse {
+message GetPaycheckResponse {
     Paycheck paycheck = 1;
 }
 
-message GetEmployeeChecksPaycheckServiceRequest {
+message GetEmployeePaychecksRequest {
     string employee_id = 1;
 }
 
-message GetEmployeeChecksPaycheckServiceResponse {
+message GetEmployeePaychecksResponse {
     repeated Paycheck paychecks = 1;
 }
 

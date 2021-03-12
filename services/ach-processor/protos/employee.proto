@@ -5,11 +5,11 @@ import "google/protobuf/empty.proto";
 package  otel.demo.proto.employees.v1;
 
 service EmployeeService {
-    rpc GetAll(google.protobuf.Empty) returns (GetAllEmployeeServiceResponse);
-    rpc GetOne(GetOneEmployeeServiceRequest) returns (GetOneEmployeeServiceResponse);
+    rpc GetAllEmployees(google.protobuf.Empty) returns (GetAllEmployeesResponse);
+    rpc GetEmployee(GetEmployeeRequest) returns (GetEmployeeResponse);
 }
 
-message GetAllEmployeeServiceResponse {
+message GetAllEmployeesResponse {
     repeated Employee employees = 1;
 }
 
@@ -21,11 +21,11 @@ message Employee {
     string marital_status = 5;
 }
 
-message GetOneEmployeeServiceRequest {
+message GetEmployeeRequest {
     string employee_id = 1;
 }
 
-message GetOneEmployeeServiceResponse {
+message GetEmployeeResponse {
     Employee employee = 1;
 }
 
