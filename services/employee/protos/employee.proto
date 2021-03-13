@@ -1,0 +1,31 @@
+syntax = "proto3"; 
+
+import "google/protobuf/empty.proto";
+
+package  otel.demo.proto.employee.v1;
+
+service EmployeeService {
+    rpc GetAllEmployees(google.protobuf.Empty) returns (GetAllEmployeesResponse);
+    rpc GetEmployee(GetEmployeeRequest) returns (GetEmployeeResponse);
+}
+
+message GetAllEmployeesResponse {
+    repeated Employee employees = 1;
+}
+
+message Employee {
+    string id = 1;
+    string name = 2; 
+    string address = 3; 
+    string ssn = 4; 
+    string marital_status = 5;
+}
+
+message GetEmployeeRequest {
+    string employee_id = 1;
+}
+
+message GetEmployeeResponse {
+    Employee employee = 1;
+}
+
