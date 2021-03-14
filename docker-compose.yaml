@@ -7,7 +7,6 @@ services:
       context: ./services/server
       dockerfile: Dockerfile
   
-
   ach-processor:
     container_name: ach-processor
     build:
@@ -15,3 +14,14 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3050:3050"
+
+  employee-service:
+    container_name: employee-service
+    build:
+      context: ./services/employee
+      dockerfile: Dockerfile
+    ports:
+      - "50052:50052"
+
+
+  

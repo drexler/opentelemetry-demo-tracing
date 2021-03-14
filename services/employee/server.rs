@@ -48,7 +48,7 @@ impl EmployeeService for MyEmployeeService {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let address = "[::1]:50051".parse().unwrap();
+    let address = "0.0.0.0:50052".parse().unwrap();   //"[::1]:50052".parse().unwrap(); 
 
     let employee_service = MyEmployeeService::default();
     println!("Server listening on {}", address);
