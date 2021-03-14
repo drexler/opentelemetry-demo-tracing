@@ -20,8 +20,6 @@ services:
     build:
       context: ./services/employee
       dockerfile: Dockerfile
-    ports:
-      - "50052:50052"
 
 
   

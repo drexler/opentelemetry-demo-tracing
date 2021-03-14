@@ -2,7 +2,7 @@ syntax = "proto3";
 
 import "google/protobuf/empty.proto";
 
-package  otel.demo.proto.employee.v1;
+package employee;
 
 service EmployeeService {
     rpc GetAllEmployees(google.protobuf.Empty) returns (GetAllEmployeesResponse);

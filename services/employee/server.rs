@@ -3,7 +3,7 @@ use employee::{Employee, GetAllEmployeesResponse, GetEmployeeRequest, GetEmploye
 use tonic::{transport::Server, Request, Response, Status};
 
 pub mod employee {
-    tonic::include_proto!("otel.demo.proto.employee.v1");
+    tonic::include_proto!("employee");
 }
 
 // defining a struct for our service
@@ -48,7 +48,7 @@ impl EmployeeService for MyEmployeeService {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let address = "0.0.0.0:50052".parse().unwrap();   //"[::1]:50052".parse().unwrap(); 
+    let address = "[::0]:50052".parse().unwrap();
 
     let employee_service = MyEmployeeService::default();
     println!("Server listening on {}", address);
