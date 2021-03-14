@@ -1,12 +1,6 @@
 version: "3"
 
 services:
-  grpc-server:
-    container_name: grpc-server
-    build:
-      context: ./services/server
-      dockerfile: Dockerfile
-  
   ach-processor:
     container_name: ach-processor
     build:
