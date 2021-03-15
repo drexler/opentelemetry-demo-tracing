@@ -16,6 +16,13 @@ services:
       - "55681:55681"
     depends_on:
       - jaeger-all-in-one
+      - zipkin-all-in-one
+
+  # Tracing
+  zipkin-all-in-one:
+    image: openzipkin/zipkin:latest
+    ports:
+      - "9411:9411"
 
   # Tracing 
   jaeger-all-in-one:
