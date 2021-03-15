@@ -1,7 +1,5 @@
-'use strict';
-
 import { NodeTracerProvider } from '@opentelemetry/node';
-import { BatchSpanProcessor } from '@opentelemetry/tracing';
+import { SimpleSpanProcessor, BatchSpanProcessor } from '@opentelemetry/tracing';
 import { CollectorTraceExporter } from '@opentelemetry/exporter-collector';
 import { registerInstrumentations } from '@opentelemetry/instrumentation'
 
@@ -35,11 +33,10 @@ registerInstrumentations({
   tracerProvider: provider,
 });
   
+const exporter = new CollectorTraceExporter({ serviceName: SERVICE_NAME, url: 'http://otel-collector:55681/v1/trace' });
+provider.addSpanProcessor(new SimpleSpanProcessor(exporter));
+
 provider.register();
-
-const exporter = new CollectorTraceExporter({serviceName: SERVICE_NAME});
-provider.addSpanProcessor(new BatchSpanProcessor(exporter));
-
 
 console.log('Tracing Initialized');
 
