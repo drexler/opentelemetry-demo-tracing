@@ -1,0 +1,29 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+      http:
+        cors_allowed_origins:
+        - http://*
+        - https://*
+
+exporters:
+  jaeger:
+    endpoint: jaeger-all-in-one:14250
+    insecure: true
+#   zipkin:
+#     endpoint: "http://zipkin-all-in-one:9411/api/v2/spans"
+#   newrelic:
+#     apikey: '<<NEW_RELIC_INSIGHTS_KEY>>'
+#     timeout: 30s
+
+processors:
+  batch:
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [jaeger]
+      #exporters: [zipkin, jaeger, newrelic]
