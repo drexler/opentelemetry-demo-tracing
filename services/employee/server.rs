@@ -89,7 +89,7 @@ impl EmployeeService for MyEmployeeService {
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> {
     global::set_text_map_propagator(TraceContextPropagator::new());
     let (_tracer, _uninstall) = opentelemetry_otlp::new_pipeline()
-        .with_endpoint("http://[::0]:4317") //scheme needed
+        .with_endpoint("http://otel-collector:4317") //scheme needed
         .with_trace_config(
             trace::config().with_resource(Resource::new(vec![KeyValue::new(
                 "service.name",

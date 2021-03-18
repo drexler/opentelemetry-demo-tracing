@@ -1,6 +1,6 @@
 import { NodeTracerProvider } from '@opentelemetry/node';
 import { BatchSpanProcessor } from '@opentelemetry/tracing';
-import { CollectorTraceExporter } from '@opentelemetry/exporter-collector';
+import { CollectorTraceExporter } from '@opentelemetry/exporter-collector-grpc';
 import { registerInstrumentations } from '@opentelemetry/instrumentation'
 import { HttpInstrumentation } from '@opentelemetry/instrumentation-http'
 import { GrpcInstrumentation } from '@opentelemetry/instrumentation-grpc'
@@ -25,7 +25,7 @@ registerInstrumentations({
 
 const exporter = new CollectorTraceExporter({ 
     serviceName: SERVICE_NAME, 
-    url: 'http://otel-collector:55681/v1/trace' 
+    url: 'http://otel-collector:4317' 
 });
 provider.addSpanProcessor(new BatchSpanProcessor(exporter));
 provider.register();
