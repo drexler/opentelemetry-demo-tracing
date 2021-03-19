@@ -1,7 +1,9 @@
 version: "3"
 
 services:
- # OpenTelemetry Collector
+##------------------------------------------------------
+### OpenTelemetry Collector
+##------------------------------------------------------
   otel-collector:
     image: otel/opentelemetry-collector-contrib:0.21.0
     command: [
@@ -48,3 +50,19 @@ services:
     build:
       context: ./services/employee
       dockerfile: Dockerfile
+
+##------------------------------------------------------
+### Databases
+##------------------------------------------------------
+  employee-db:
+    container_name: employee-database
+    build:
+      context: ./databases/employee
+      dockerfile: Dockerfile
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=employee
+       
