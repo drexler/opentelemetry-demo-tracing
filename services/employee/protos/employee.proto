@@ -18,7 +18,7 @@ message Employee {
     string name = 2; 
     string address = 3; 
     string ssn = 4; 
-    string marital_status = 5;
+    bool marital_status = 5;
 }
 
 message GetEmployeeRequest {
