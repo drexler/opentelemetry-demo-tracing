@@ -1,5 +1,20 @@
+#[macro_use]
+extern crate diesel;
+
+pub mod database;
+pub mod models;
+pub mod schema;
+pub mod employee {
+    tonic::include_proto!("employee");
+}
+
+use models::DbEmployee;
+use tonic::{transport::Server, Request, Response, Status};
+
 use employee::employee_service_server::{EmployeeService, EmployeeServiceServer};
 use employee::{Employee, GetAllEmployeesResponse, GetEmployeeRequest, GetEmployeeResponse};
+
+use database::create_connection;
 use opentelemetry::global;
 use opentelemetry::sdk::propagation::TraceContextPropagator;
 use opentelemetry::sdk::{trace, Resource};
@@ -9,11 +24,6 @@ use opentelemetry::{
     trace::{Span, Tracer},
     KeyValue,
 };
-use tonic::{transport::Server, Request, Response, Status};
-
-pub mod employee {
-    tonic::include_proto!("employee");
-}
 
 struct MetadataMap<'a>(&'a tonic::metadata::MetadataMap);
 
@@ -50,17 +60,19 @@ impl EmployeeService for MyEmployeeService {
             .start_with_context("get_all_employees", parent_ctx);
         span.set_attribute(KeyValue::new("request", format!("{:?}", request)));
 
-        let employee = Employee {
-            id: "Test Andrew".into(),
-            name: "Name".into(),
-            address: "Somewhere".into(),
-            ssn: "123-45-6789".into(),
-            marital_status: "M".into(),
-        };
+        let connection = database::create_connection();
+        let employees: Vec<Employee> = database::get_employees(&connection)
+            .into_iter()
+            .map(|db_emp: DbEmployee| Employee {
+                id: db_emp.id,
+                name: db_emp.name,
+                address: db_emp.address,
+                ssn: db_emp.ssn,
+                marital_status: db_emp.marital_status,
+            })
+            .collect();
 
-        let result = GetAllEmployeesResponse {
-            employees: vec![employee],
-        };
+        let result = GetAllEmployeesResponse { employees };
 
         Ok(Response::new(result))
     }
@@ -74,8 +86,10 @@ impl EmployeeService for MyEmployeeService {
             name: "Andrew".into(),
             address: "Somewhere".into(),
             ssn: "123-45-6789".into(),
-            marital_status: "M".into(),
+            marital_status: true,
         };
+
+        let _connection = create_connection();
 
         let result = GetEmployeeResponse {
             employee: Some(employee),

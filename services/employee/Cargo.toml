@@ -6,7 +6,7 @@ edition = "2018"
 
 [[bin]]
 name = "server"
-path = "server.rs"
+path = "src/main.rs"
 
 [dependencies]
 prost = "0.7.0"
@@ -16,6 +16,8 @@ futures = "0.3"
 opentelemetry-otlp = { version = "0.5.0", features =["tonic"]}
 opentelemetry = { version = "0.12.0", features = ["tokio-support"]}
 opentelemetry-jaeger = { version = "0.11.0", features = ["collector_client", "tokio"]}
+diesel = { version = "1.4.0", features = ["postgres"] }
+dotenv = "0.10"
 
 [build-dependencies]
 tonic-build = "0.4.0"

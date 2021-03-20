@@ -50,6 +50,10 @@ services:
     build:
       context: ./services/employee
       dockerfile: Dockerfile
+    environment:
+        - DATABASE_URL=postgresql://postgres:password@employee-db:5432/employee
+    depends_on:
+      - employee-db
 
 ##------------------------------------------------------
 ### Databases
@@ -65,4 +69,4 @@ services:
       - POSTGRES_PASSWORD=password
       - POSTGRES_USER=postgres
       - POSTGRES_DB=employee
-       
+      
