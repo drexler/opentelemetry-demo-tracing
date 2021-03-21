@@ -1,6 +1,6 @@
 table! {
     employee (id) {
-        id -> Varchar,
+        id -> Uuid,
         name -> Varchar,
         address -> Varchar,
         ssn -> Varchar,

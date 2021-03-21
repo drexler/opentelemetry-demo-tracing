@@ -64,7 +64,7 @@ impl EmployeeService for MyEmployeeService {
         let employees: Vec<Employee> = database::get_employees(&connection)
             .into_iter()
             .map(|db_emp: DbEmployee| Employee {
-                id: db_emp.id,
+                id: db_emp.id.to_string(),
                 name: db_emp.name,
                 address: db_emp.address,
                 ssn: db_emp.ssn,

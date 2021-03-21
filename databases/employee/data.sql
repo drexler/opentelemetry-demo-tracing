@@ -1,8 +1,10 @@
 
 drop table if exists employee;
 
+create extension if not exists "uuid-ossp";
+
 create table employee (
-   id serial,
+   id uuid default uuid_generate_v4 (),
    name varchar(100),
    address varchar(100),
    ssn varchar(11), 

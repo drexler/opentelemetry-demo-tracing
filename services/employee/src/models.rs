@@ -2,7 +2,7 @@ use crate::schema::employee;
 
 #[derive(Queryable)]
 pub struct DbEmployee {
-    pub id: String,
+    pub id: uuid::Uuid,
     pub name: String,
     pub address: String,
     pub ssn: String,
