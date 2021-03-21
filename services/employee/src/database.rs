@@ -1,6 +1,7 @@
 use diesel::prelude::*;
 use dotenv::dotenv;
 use std::env;
+use uuid::Uuid;
 
 use crate::models::{DbEmployee, NewDbEmployee};
 use crate::schema::employee;
@@ -26,5 +27,10 @@ pub fn create_connection() -> PgConnection {
 pub fn get_employees(conn: &PgConnection) -> Vec<DbEmployee> {
     employee
         .load::<DbEmployee>(conn)
-        .expect("Error loading posts")
+        .expect("Error loading employees")
+}
+
+pub fn get_employee(conn: &PgConnection, employee_id: &Uuid) -> Option<DbEmployee> {
+    let result = employee.find(employee_id).first(conn);
+    result.ok()
 }

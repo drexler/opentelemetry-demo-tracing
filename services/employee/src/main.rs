@@ -25,6 +25,8 @@ use opentelemetry::{
     KeyValue,
 };
 
+use uuid::Uuid;
+
 struct MetadataMap<'a>(&'a tonic::metadata::MetadataMap);
 
 impl<'a> Extractor for MetadataMap<'a> {
@@ -81,19 +83,20 @@ impl EmployeeService for MyEmployeeService {
         &self,
         request: Request<GetEmployeeRequest>,
     ) -> Result<Response<GetEmployeeResponse>, Status> {
-        let employee = Employee {
-            id: "Test 2".into(),
-            name: "Andrew".into(),
-            address: "Somewhere".into(),
-            ssn: "123-45-6789".into(),
-            marital_status: true,
-        };
+        let employee_id = request.into_inner().employee_id;
+        let employee_id = Uuid::parse_str(&employee_id).unwrap();
+        let connection = create_connection();
 
-        let _connection = create_connection();
+        let employee =
+            database::get_employee(&connection, &employee_id).map(|db_employee| Employee {
+                id: db_employee.id.to_string(),
+                name: db_employee.name,
+                address: db_employee.address,
+                ssn: db_employee.ssn,
+                marital_status: db_employee.marital_status,
+            });
 
-        let result = GetEmployeeResponse {
-            employee: Some(employee),
-        };
+        let result = GetEmployeeResponse { employee };
 
         Ok(Response::new(result))
     }
