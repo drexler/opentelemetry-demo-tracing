@@ -17,7 +17,7 @@ employeesRouter.get('/', (_request: Request, response: Response) => {
         employeeService.getAllEmployees({}, (err: any, result: any) => {
             span.end();
             if (err) {
-                throw err;
+                response.send({error: err.message});
             }
             response.send(result);
         });
