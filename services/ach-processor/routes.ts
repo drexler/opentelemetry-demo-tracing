@@ -29,7 +29,7 @@ employeesRouter.get('/', (_request: Request, response: Response) => {
 
 
 /**
- * Gets the an employee's data
+ * Gets an employee's data
  */
  employeesRouter.get('/:employee_id', (request: Request, response: Response) => {
     console.log('calling into employee service'); 
@@ -37,6 +37,30 @@ employeesRouter.get('/', (_request: Request, response: Response) => {
     let employeeeId = request.params.employee_id;
     api.context.with(api.setSpan(api.context.active(), span), () => {
         employeeService.getEmployee({employee_id: employeeeId}, (err: any, result: any) => {
+            span.end();
+            if (err) {
+                response.send({error: err.message});
+            }
+            response.send(result);
+        });
+    });
+
+    console.log('Sleeping 5 seconds before shutdown to ensure all records are flushed.');
+    setTimeout(() => { console.log('Completed.'); }, 5000);
+});
+
+
+/**
+ * Creates an employee
+ */
+ employeesRouter.post('/', (request: Request, response: Response) => {
+    console.log('calling into employee service'); 
+    const span = tracer.startSpan('ach-processor: createEmployee');
+
+    const { name, address, ssn, marital_status} = request.body;
+
+    api.context.with(api.setSpan(api.context.active(), span), () => {
+        employeeService.createEmployee({name, address, ssn, marital_status}, (err: any, result: any) => {
             span.end();
             if (err) {
                 response.send({error: err.message});

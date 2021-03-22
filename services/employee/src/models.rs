@@ -14,4 +14,6 @@ pub struct DbEmployee {
 pub struct NewDbEmployee<'a> {
     pub name: &'a str,
     pub address: &'a str,
+    pub ssn: &'a str,
+    pub marital_status: bool
 }

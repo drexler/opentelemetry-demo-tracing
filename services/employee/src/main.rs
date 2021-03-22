@@ -12,7 +12,10 @@ use models::DbEmployee;
 use tonic::{transport::Server, Request, Response, Status};
 
 use employee::employee_service_server::{EmployeeService, EmployeeServiceServer};
-use employee::{Employee, GetAllEmployeesResponse, GetEmployeeRequest, GetEmployeeResponse};
+use employee::{
+    CreateEmployeeRequest, CreateEmployeeResponse, Employee, GetAllEmployeesResponse,
+    GetEmployeeRequest, GetEmployeeResponse,
+};
 
 use database::create_connection;
 use opentelemetry::global;
@@ -97,6 +100,32 @@ impl EmployeeService for MyEmployeeService {
             });
 
         let result = GetEmployeeResponse { employee };
+
+        Ok(Response::new(result))
+    }
+
+    async fn create_employee(
+        &self,
+        request: Request<CreateEmployeeRequest>,
+    ) -> Result<Response<CreateEmployeeResponse>, Status> {
+        let params = request.into_inner();
+        let address = params.address;
+        let name = params.name;
+        let ssn = params.ssn;
+        let marital_status = params.marital_status;
+
+        let connection = create_connection();
+        let employee = database::create_employee(&connection, &name, &address, &ssn, marital_status)
+            .ok()
+            .map(|db_employee| Employee {
+                id: db_employee.id.to_string(),
+                name: db_employee.name,
+                address: db_employee.address,
+                ssn: db_employee.ssn,
+                marital_status: db_employee.marital_status,
+            });
+
+        let result = CreateEmployeeResponse { employee };
 
         Ok(Response::new(result))
     }

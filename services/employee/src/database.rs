@@ -15,14 +15,24 @@ pub fn create_connection() -> PgConnection {
         .unwrap_or_else(|_| panic!("Error connecting to {}", database_url))
 }
 
-// pub fn create_employee(conn: &PgConnection, name: &str, address: &str) -> DbEmployee {
-//     let new_employee = NewDbEmployee { name, address };
+pub fn create_employee(
+    conn: &PgConnection,
+    emp_name: &str,
+    emp_address: &str,
+    emp_ssn: &str,
+    emp_marital_status: bool
+) -> QueryResult<DbEmployee> {
+    let new_employee = NewDbEmployee {
+        name: emp_name,
+        address: emp_address,
+        ssn: emp_ssn, 
+        marital_status:emp_marital_status
+    };
 
-//     diesel::insert_into(employee::table)
-//         .values(&new_employee)
-//         .get_result(conn)
-//         .expect("Error saving new employee")
-// }
+    diesel::insert_into(employee::table)
+        .values(&new_employee)
+        .get_result(conn)
+}
 
 pub fn get_employees(conn: &PgConnection) -> Vec<DbEmployee> {
     employee

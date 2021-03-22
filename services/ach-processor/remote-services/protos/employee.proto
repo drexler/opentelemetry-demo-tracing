@@ -7,6 +7,7 @@ package employee;
 service EmployeeService {
     rpc GetAllEmployees(google.protobuf.Empty) returns (GetAllEmployeesResponse);
     rpc GetEmployee(GetEmployeeRequest) returns (GetEmployeeResponse);
+    rpc CreateEmployee(CreateEmployeeRequest) returns (CreateEmployeeResponse);
 }
 
 message GetAllEmployeesResponse {
@@ -28,4 +29,16 @@ message GetEmployeeRequest {
 message GetEmployeeResponse {
     Employee employee = 1;
 }
+
+message CreateEmployeeRequest {
+    string name = 1; 
+    string address = 2; 
+    string ssn = 3; 
+    bool marital_status = 4;
+}
+
+message CreateEmployeeResponse {
+    Employee employee = 1;
+}
+
 
