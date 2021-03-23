@@ -7,7 +7,6 @@ pub mod schema;
 pub mod employee {
     tonic::include_proto!("employee");
 }
-
 use models::DbEmployee;
 use tonic::{transport::Server, Request, Response, Status};
 
@@ -17,14 +16,11 @@ use employee::{
     GetEmployeeRequest, GetEmployeeResponse,
 };
 
-use database::create_connection;
-use opentelemetry::global;
-use opentelemetry::sdk::propagation::TraceContextPropagator;
-use opentelemetry::sdk::{trace, Resource};
-use opentelemetry::trace::TraceError;
+use opentelemetry::sdk::{propagation::TraceContextPropagator, trace, Resource};
 use opentelemetry::{
+    global,
     propagation::Extractor,
-    trace::{Span, Tracer},
+    trace::Tracer,
     KeyValue,
 };
 
@@ -61,22 +57,15 @@ impl EmployeeService for MyEmployeeService {
     ) -> Result<Response<GetAllEmployeesResponse>, Status> {
         let parent_ctx =
             global::get_text_map_propagator(|prop| prop.extract(&MetadataMap(request.metadata())));
-        let span = global::tracer("employee-service-tracer")
-            .start_with_context("get_all_employees", parent_ctx);
-        span.set_attribute(KeyValue::new("request", format!("{:?}", request)));
+        let tracer = global::tracer("employee-service");
+        let span = tracer.start_with_context("get_all_employees", parent_ctx);
 
-        let connection = database::create_connection();
-        let employees: Vec<Employee> = database::get_employees(&connection)
-            .into_iter()
-            .map(|db_emp: DbEmployee| Employee {
-                id: db_emp.id.to_string(),
-                name: db_emp.name,
-                address: db_emp.address,
-                ssn: db_emp.ssn,
-                marital_status: db_emp.marital_status,
-            })
-            .collect();
-
+        let employees = tracer.with_span(span, |_cx| -> Vec<Employee> {
+            database::get_employees()
+                .into_iter()
+                .map(model_mapper)
+                .collect()
+        });
         let result = GetAllEmployeesResponse { employees };
 
         Ok(Response::new(result))
@@ -86,18 +75,17 @@ impl EmployeeService for MyEmployeeService {
         &self,
         request: Request<GetEmployeeRequest>,
     ) -> Result<Response<GetEmployeeResponse>, Status> {
+        let parent_ctx =
+            global::get_text_map_propagator(|prop| prop.extract(&MetadataMap(request.metadata())));
+        let tracer = global::tracer("employee-service");
+        let span = tracer.start_with_context("get_employee", parent_ctx);
+
         let employee_id = request.into_inner().employee_id;
         let employee_id = Uuid::parse_str(&employee_id).unwrap();
-        let connection = create_connection();
 
-        let employee =
-            database::get_employee(&connection, &employee_id).map(|db_employee| Employee {
-                id: db_employee.id.to_string(),
-                name: db_employee.name,
-                address: db_employee.address,
-                ssn: db_employee.ssn,
-                marital_status: db_employee.marital_status,
-            });
+        let employee = tracer.with_span(span, |_cx| -> Option<Employee> {
+            database::get_employee(&employee_id).map(model_mapper)
+        });
 
         let result = GetEmployeeResponse { employee };
 
@@ -108,26 +96,36 @@ impl EmployeeService for MyEmployeeService {
         &self,
         request: Request<CreateEmployeeRequest>,
     ) -> Result<Response<CreateEmployeeResponse>, Status> {
+        let parent_ctx =
+            global::get_text_map_propagator(|prop| prop.extract(&MetadataMap(request.metadata())));
+        let tracer = global::tracer("employee-service");
+        let span = tracer.start_with_context("create_employee", parent_ctx);
+
         let params = request.into_inner();
         let address = params.address;
         let name = params.name;
         let ssn = params.ssn;
         let marital_status = params.marital_status;
 
-        let connection = create_connection();
-        let employee = database::create_employee(&connection, &name, &address, &ssn, marital_status)
-            .ok()
-            .map(|db_employee| Employee {
-                id: db_employee.id.to_string(),
-                name: db_employee.name,
-                address: db_employee.address,
-                ssn: db_employee.ssn,
-                marital_status: db_employee.marital_status,
-            });
+        let employee = tracer.with_span(span, |_cx| -> Option<Employee> {
+            database::create_employee(&name, &address, &ssn, marital_status)
+                .ok()
+                .map(model_mapper)
+        });
 
         let result = CreateEmployeeResponse { employee };
 
         Ok(Response::new(result))
+    }
+}
+
+fn model_mapper(db_employee: DbEmployee) -> Employee {
+    Employee {
+        id: db_employee.id.to_string(),
+        name: db_employee.name,
+        address: db_employee.address,
+        ssn: db_employee.ssn,
+        marital_status: db_employee.marital_status,
     }
 }
 
