@@ -4,6 +4,7 @@ extern crate diesel;
 pub mod database;
 pub mod models;
 pub mod schema;
+pub mod tracing;
 pub mod employee {
     tonic::include_proto!("employee");
 }
@@ -16,35 +17,10 @@ use employee::{
     GetEmployeeRequest, GetEmployeeResponse,
 };
 
-use opentelemetry::sdk::{propagation::TraceContextPropagator, trace, Resource};
-use opentelemetry::{
-    global,
-    propagation::Extractor,
-    trace::Tracer,
-    KeyValue,
-};
+use opentelemetry::sdk::propagation::TraceContextPropagator;
+use opentelemetry::{global, trace::Tracer};
 
 use uuid::Uuid;
-
-struct MetadataMap<'a>(&'a tonic::metadata::MetadataMap);
-
-impl<'a> Extractor for MetadataMap<'a> {
-    /// Get a value for a key from the MetadataMap.  If the value can't be converted to &str, returns None
-    fn get(&self, key: &str) -> Option<&str> {
-        self.0.get(key).and_then(|metadata| metadata.to_str().ok())
-    }
-
-    /// Collect all the keys from the MetadataMap.
-    fn keys(&self) -> Vec<&str> {
-        self.0
-            .keys()
-            .map(|key| match key {
-                tonic::metadata::KeyRef::Ascii(v) => v.as_str(),
-                tonic::metadata::KeyRef::Binary(v) => v.as_str(),
-            })
-            .collect::<Vec<_>>()
-    }
-}
 
 #[derive(Default)]
 pub struct MyEmployeeService {}
@@ -55,8 +31,7 @@ impl EmployeeService for MyEmployeeService {
         &self,
         request: Request<()>,
     ) -> Result<Response<GetAllEmployeesResponse>, Status> {
-        let parent_ctx =
-            global::get_text_map_propagator(|prop| prop.extract(&MetadataMap(request.metadata())));
+        let parent_ctx = tracing::get_parent_context(&request);
         let tracer = global::tracer("employee-service");
         let span = tracer.start_with_context("get_all_employees", parent_ctx);
 
@@ -75,8 +50,7 @@ impl EmployeeService for MyEmployeeService {
         &self,
         request: Request<GetEmployeeRequest>,
     ) -> Result<Response<GetEmployeeResponse>, Status> {
-        let parent_ctx =
-            global::get_text_map_propagator(|prop| prop.extract(&MetadataMap(request.metadata())));
+        let parent_ctx = tracing::get_parent_context(&request);
         let tracer = global::tracer("employee-service");
         let span = tracer.start_with_context("get_employee", parent_ctx);
 
@@ -96,8 +70,7 @@ impl EmployeeService for MyEmployeeService {
         &self,
         request: Request<CreateEmployeeRequest>,
     ) -> Result<Response<CreateEmployeeResponse>, Status> {
-        let parent_ctx =
-            global::get_text_map_propagator(|prop| prop.extract(&MetadataMap(request.metadata())));
+        let parent_ctx = tracing::get_parent_context(&request);
         let tracer = global::tracer("employee-service");
         let span = tracer.start_with_context("create_employee", parent_ctx);
 
@@ -132,15 +105,8 @@ fn model_mapper(db_employee: DbEmployee) -> Employee {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> {
     global::set_text_map_propagator(TraceContextPropagator::new());
-    let (_tracer, _uninstall) = opentelemetry_otlp::new_pipeline()
-        .with_endpoint("http://otel-collector:4317") //scheme needed
-        .with_trace_config(
-            trace::config().with_resource(Resource::new(vec![KeyValue::new(
-                "service.name",
-                "employee-service",
-            )])),
-        )
-        .install()?;
+
+    let (_tracer, _uninstall) = tracing::initialize_tracer()?;
 
     let address = "[::0]:50052".parse().unwrap();
     let employee_service = MyEmployeeService::default();
