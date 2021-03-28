@@ -37,10 +37,10 @@ services:
 ##------------------------------------------------------
 ### Application Services
 ##------------------------------------------------------
-  ach-processor:
-    container_name: ach-processor
+  payroll-service:
+    container_name: payroll-service
     build:
-      context: ./services/ach-processor
+      context: ./services/payroll
       dockerfile: Dockerfile
     ports:
       - "3050:3050"

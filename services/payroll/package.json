@@ -1,12 +1,12 @@
 {
-  "name": "ach-processor",
+  "name": "payroll",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "start": "ts-node -r ./tracing.ts index.ts"
   },
-  "author": "",
+  "author": "drexler",
   "license": "ISC",
   "devDependencies": {
     "@opentelemetry/api": "^1.0.0-rc.0",

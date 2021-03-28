@@ -5,7 +5,7 @@ import { registerInstrumentations } from '@opentelemetry/instrumentation'
 import { HttpInstrumentation } from '@opentelemetry/instrumentation-http'
 import { GrpcInstrumentation } from '@opentelemetry/instrumentation-grpc'
 
-const SERVICE_NAME: string = 'ach-processor'
+const SERVICE_NAME: string = 'payroll-service'
 
 const provider = new NodeTracerProvider();
 registerInstrumentations({
