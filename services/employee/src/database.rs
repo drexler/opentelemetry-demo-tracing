@@ -19,25 +19,13 @@ fn create_connection() -> PgConnection {
         .unwrap_or_else(|_| panic!("Error connecting to {}", database_url))
 }
 
-pub fn create_employee(
-    emp_name: &str,
-    emp_address: &str,
-    emp_ssn: &str,
-    emp_marital_status: bool,
-) -> QueryResult<DbEmployee> {
+pub fn create_employee(new_employee: &NewDbEmployee) -> QueryResult<DbEmployee> {
     let tracer = global::tracer("database-tracer");
     let span = tracer.span_builder("create_employee").start(&tracer);
 
-    let new_employee = NewDbEmployee {
-        name: emp_name,
-        address: emp_address,
-        ssn: emp_ssn,
-        marital_status: emp_marital_status,
-    };
-
     let connection = tracer.with_span(span, |_cx| -> PgConnection { create_connection() });
     diesel::insert_into(employee::table)
-        .values(&new_employee)
+        .values(new_employee)
         .get_result(&connection)
 }
 

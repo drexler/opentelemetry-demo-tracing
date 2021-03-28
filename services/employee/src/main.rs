@@ -8,7 +8,7 @@ pub mod tracing;
 pub mod employee {
     tonic::include_proto!("employee");
 }
-use models::DbEmployee;
+use models::{DbEmployee, NewDbEmployee};
 use tonic::{transport::Server, Request, Response, Status};
 
 use employee::employee_service_server::{EmployeeService, EmployeeServiceServer};
@@ -75,13 +75,15 @@ impl EmployeeService for MyEmployeeService {
         let span = tracer.start_with_context("create_employee", parent_ctx);
 
         let params = request.into_inner();
-        let address = params.address;
-        let name = params.name;
-        let ssn = params.ssn;
-        let marital_status = params.marital_status;
+        let new_employee = NewDbEmployee {
+            address: &params.address,
+            name: &params.name,
+            ssn: &params.ssn,
+            marital_status: params.marital_status,
+        };
 
         let employee = tracer.with_span(span, |_cx| -> Option<Employee> {
-            database::create_employee(&name, &address, &ssn, marital_status)
+            database::create_employee(&new_employee)
                 .ok()
                 .map(model_mapper)
         });
