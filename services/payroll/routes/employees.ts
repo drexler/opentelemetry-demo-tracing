@@ -1,6 +1,5 @@
 import express, { Request, Response } from "express";
-import { employeeService } from './remote-services/services';
-
+import { employeeService } from '../remote-services/services';
 import * as api from '@opentelemetry/api';
 
 export const employeesRouter = express.Router();
