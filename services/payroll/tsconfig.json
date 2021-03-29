@@ -11,7 +11,8 @@
       "lib": [
         "es2017",
         "dom",
-        "es7"
+        "es7",
+        "es6"
       ],
       "allowUnusedLabels": false,
       "noImplicitReturns": true,
