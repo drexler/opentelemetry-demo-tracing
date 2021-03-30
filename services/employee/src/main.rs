@@ -35,15 +35,18 @@ impl EmployeeService for MyEmployeeService {
         let tracer = global::tracer("employee-service");
         let span = tracer.start_with_context("get_all_employees", parent_ctx);
 
-        let employees = tracer.with_span(span, |_cx| -> Vec<Employee> {
-            database::get_employees()
-                .into_iter()
-                .map(model_mapper)
-                .collect()
-        });
-        let result = GetAllEmployeesResponse { employees };
+        let db_result = tracer.with_span(
+            span,
+            |_cx| -> Result<Vec<Employee>, Box<dyn std::error::Error>> {
+                database::get_employees()
+                    .map(|employees| employees.into_iter().map(model_mapper).collect())
+            },
+        );
 
-        Ok(Response::new(result))
+        match db_result {
+            Ok(employees) => Ok(Response::new(GetAllEmployeesResponse { employees })),
+            Err(_) => Err(Status::unknown("unable to load all employees")),
+        }
     }
 
     async fn get_employee(
@@ -57,13 +60,25 @@ impl EmployeeService for MyEmployeeService {
         let employee_id = request.into_inner().employee_id;
         let employee_id = Uuid::parse_str(&employee_id).unwrap();
 
-        let employee = tracer.with_span(span, |_cx| -> Option<Employee> {
-            database::get_employee(&employee_id).map(model_mapper)
-        });
+        let db_result = tracer.with_span(
+            span,
+            |_cx| -> Result<Employee, Box<dyn std::error::Error>> {
+                database::get_employee(&employee_id).map(model_mapper)
+            },
+        );
 
-        let result = GetEmployeeResponse { employee };
+        let employee = db_result.ok();
 
-        Ok(Response::new(result))
+        match employee {
+            Some(_) => {
+                let result = GetEmployeeResponse { employee };
+                Ok(Response::new(result))
+            }
+            None => {
+                let message = format!("Employee with id: {} not found", employee_id);
+                Err(Status::unknown(message))
+            }
+        }
     }
 
     async fn create_employee(
@@ -82,15 +97,22 @@ impl EmployeeService for MyEmployeeService {
             marital_status: params.marital_status,
         };
 
-        let employee = tracer.with_span(span, |_cx| -> Option<Employee> {
-            database::create_employee(&new_employee)
-                .ok()
-                .map(model_mapper)
-        });
+        let db_result = tracer.with_span(
+            span,
+            |_cx| -> Result<Employee, Box<dyn std::error::Error>> {
+                database::create_employee(&new_employee).map(model_mapper)
+            },
+        );
 
-        let result = CreateEmployeeResponse { employee };
+        let employee = db_result.ok();
 
-        Ok(Response::new(result))
+        match employee {
+            Some(_) => {
+                let result = CreateEmployeeResponse { employee };
+                Ok(Response::new(result))
+            }
+            None => Err(Status::unknown("Unable to create employee")),
+        }
     }
 }
 
