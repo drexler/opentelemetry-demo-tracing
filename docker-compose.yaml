@@ -43,7 +43,11 @@ services:
       context: ./services/payroll
       dockerfile: Dockerfile
     ports:
-      - "3050:3050"
+      - "55050:55050"
+    environment:
+      - SERVICE_PORT=55050
+      - OTEL_COLLECTOR_URI=http://otel-collector:4317
+      - EMPLOYEE_SERVICE_URI=employee-service:50052
 
   employee-service:
     container_name: employee-service
@@ -51,6 +55,8 @@ services:
       context: ./services/employee
       dockerfile: Dockerfile
     environment:
+        - SERVICE_PORT=50052
+        - OTEL_COLLECTOR_URI=http://otel-collector:4317
         - DATABASE_URL=postgresql://postgres:password@employee-db:5432/employee
     depends_on:
       - employee-db

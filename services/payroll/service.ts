@@ -5,7 +5,7 @@ import {employeesRouter} from './routes'
 import {errorHandler, notFoundHandler} from './middlewares';
 
 
-const port = process.env.SERVER_PORT || 3050;
+const port = process.env.SERVICE_PORT || 55050;
 
 const app = express();
 app.use(cors());

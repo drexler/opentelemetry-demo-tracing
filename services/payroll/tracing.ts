@@ -5,7 +5,8 @@ import { registerInstrumentations } from '@opentelemetry/instrumentation'
 import { HttpInstrumentation } from '@opentelemetry/instrumentation-http'
 import { GrpcInstrumentation } from '@opentelemetry/instrumentation-grpc'
 
-const SERVICE_NAME: string = 'payroll-service'
+const SERVICE_NAME: string = 'payroll-service';
+const OTEL_COLLECTOR_URI = process.env.OTEL_COLLECTOR_URI || 'http://otel-collector:4317';
 
 const provider = new NodeTracerProvider();
 registerInstrumentations({
@@ -25,7 +26,7 @@ registerInstrumentations({
 
 const exporter = new CollectorTraceExporter({ 
     serviceName: SERVICE_NAME, 
-    url: 'http://otel-collector:4317' 
+    url: OTEL_COLLECTOR_URI
 });
 provider.addSpanProcessor(new BatchSpanProcessor(exporter));
 provider.register();

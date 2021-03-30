@@ -24,8 +24,10 @@ employeesRouter.get('/', (_request: Request, response: Response, next: NextFunct
                     developerMessage: err.message, 
                     traceId
                 }));
+            } else {
+                response.send(result);
             }
-            response.send(result);
+
 
         });
     });
@@ -49,8 +51,9 @@ employeesRouter.get('/', (_request: Request, response: Response, next: NextFunct
                     developerMessage: err.message, 
                     traceId
                 }));
+            } else {
+                response.send(result);
             }
-            response.send(result); 
         });
     });
 });
@@ -73,8 +76,9 @@ employeesRouter.get('/', (_request: Request, response: Response, next: NextFunct
                     developerMessage: err.message, 
                     traceId
                 }));
+            } else {
+                response.send(result);
             }
-            response.send(result);  
         });
     });
 });

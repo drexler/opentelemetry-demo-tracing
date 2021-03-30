@@ -19,7 +19,7 @@ use employee::{
 
 use opentelemetry::sdk::propagation::TraceContextPropagator;
 use opentelemetry::{global, trace::Tracer};
-
+use std::{env, net::SocketAddr};
 use uuid::Uuid;
 
 #[derive(Default)]
@@ -110,13 +110,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
 
     let (_tracer, _uninstall) = tracing::initialize_tracer()?;
 
-    let address = "[::0]:50052".parse().unwrap();
+    let service_port = env::var("SERVICE_PORT").expect("SERVICE_PORT must be set");
+    let uri = format!("[::0]:{}", service_port);
+    let service_address: SocketAddr = uri.as_str().parse().unwrap();
     let employee_service = MyEmployeeService::default();
-    println!("Server listening on {}", address);
+    println!("Server listening on {}", service_address);
 
     Server::builder()
         .add_service(EmployeeServiceServer::new(employee_service))
-        .serve(address)
+        .serve(service_address)
         .await?;
     Ok(())
 }

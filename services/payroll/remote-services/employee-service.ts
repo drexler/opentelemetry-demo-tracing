@@ -9,11 +9,13 @@ const protoOptions = {
     oneofs: true,
 };
 
+const EMPLOYEE_SERVICE_URI = process.env.EMPLOYEE_SERVICE_URI;
+
 // employee service 
 const EMPLOYEE_PROTO_PATH = `${__dirname}/protos/employee.proto`; 
 const employeePackageDefinition = protoLoader.loadSync(EMPLOYEE_PROTO_PATH, protoOptions);
 const employeePackageObject: any = grpc.loadPackageDefinition(employeePackageDefinition).employee
 export const employeeService = new employeePackageObject.EmployeeService(
-    "employee-service:50052", 
+     EMPLOYEE_SERVICE_URI, 
     grpc.credentials.createInsecure()
 );
