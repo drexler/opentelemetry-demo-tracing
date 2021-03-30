@@ -29,9 +29,6 @@ employeesRouter.get('/', (_request: Request, response: Response, next: NextFunct
 
         });
     });
-
-    console.log('Sleeping 5 seconds before shutdown to ensure all records are flushed.');
-    setTimeout(() => { console.log('Completed.'); }, 5000);
 });
 
 
@@ -56,9 +53,6 @@ employeesRouter.get('/', (_request: Request, response: Response, next: NextFunct
             response.send(result); 
         });
     });
-
-    console.log('Sleeping 5 seconds before shutdown to ensure all records are flushed.');
-    setTimeout(() => { console.log('Completed.'); }, 5000);
 });
 
 
@@ -83,7 +77,4 @@ employeesRouter.get('/', (_request: Request, response: Response, next: NextFunct
             response.send(result);  
         });
     });
-
-    console.log('Sleeping 5 seconds before shutdown to ensure all records are flushed.');
-    setTimeout(() => { console.log('Completed.'); }, 5000);
 });
