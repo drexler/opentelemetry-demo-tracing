@@ -1,21 +1,42 @@
 use diesel::prelude::*;
-use dotenv::dotenv;
-use std::env;
+use std::{env, time::SystemTime};
 use uuid::Uuid;
 
 use crate::models::{DbEmployee, NewDbEmployee};
 use crate::schema::employee;
 use crate::schema::employee::dsl::*;
 
-use opentelemetry::{global, trace::Tracer};
+use opentelemetry::{
+    global,
+    trace::{Span, StatusCode, Tracer},
+    KeyValue,
+};
 
 fn create_connection() -> ConnectionResult<PgConnection> {
     let tracer = global::tracer("database-tracer");
-    let _span = tracer.span_builder("create_connection").start(&tracer);
+    let span = tracer.span_builder("create_connection").start(&tracer);
 
-    dotenv().ok();
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-    PgConnection::establish(&database_url)
+
+    let connection = PgConnection::establish(&database_url);
+
+    match connection {
+        Ok(conn) => Ok(conn),
+        Err(e) => {
+            let error_message = format!("connection problem: {}", e.to_string());
+            span.add_event_with_timestamp(
+                error_message,
+                SystemTime::now(),
+                vec![
+                    KeyValue::new("db.system", "postgres"),
+                    KeyValue::new("db.connection.string", database_url),
+                ],
+            );
+            span.set_status(StatusCode::Error, "connection error".into());
+
+            Err(e)
+        }
+    }
 }
 
 pub fn create_employee(
