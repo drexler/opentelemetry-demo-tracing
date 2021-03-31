@@ -12,6 +12,15 @@ use opentelemetry::{
     KeyValue,
 };
 
+pub type DynError = dyn std::error::Error;
+
+fn covert_to_dyn_error<E>(e: E) -> Box<DynError>
+where
+    E: std::error::Error + 'static,
+{
+    Box::new(e)
+}
+
 fn create_connection() -> ConnectionResult<PgConnection> {
     let tracer = global::tracer("database-tracer");
     let span = tracer.span_builder("create_connection").start(&tracer);
@@ -41,7 +50,7 @@ fn create_connection() -> ConnectionResult<PgConnection> {
 
 pub fn create_employee(
     new_employee: &NewDbEmployee,
-) -> Result<DbEmployee, Box<dyn std::error::Error + 'static>> {
+) -> Result<DbEmployee, Box<DynError>> {
     let tracer = global::tracer("database-tracer");
     let span = tracer.span_builder("create_employee").start(&tracer);
 
@@ -54,16 +63,13 @@ pub fn create_employee(
                 .values(new_employee)
                 .get_result(&conn);
 
-            match created_employee {
-                Ok(emp) => Ok(emp),
-                Err(e) => Err(Box::new(e)),
-            }
+            created_employee.map_err(self::covert_to_dyn_error)
         }
         Err(e) => Err(Box::new(e)),
     }
 }
 
-pub fn get_employees() -> Result<Vec<DbEmployee>, Box<dyn std::error::Error + 'static>> {
+pub fn get_employees() -> Result<Vec<DbEmployee>, Box<DynError>> {
     let tracer = global::tracer("database-tracer");
     let span = tracer.span_builder("get_employees").start(&tracer);
 
@@ -71,17 +77,15 @@ pub fn get_employees() -> Result<Vec<DbEmployee>, Box<dyn std::error::Error + 's
         create_connection()
     });
     match connection {
-        Ok(conn) => match employee.load::<DbEmployee>(&conn) {
-            Ok(employees) => Ok(employees),
-            Err(e) => Err(Box::new(e)),
-        },
+        Ok(conn) => {
+            let employees = employee.load::<DbEmployee>(&conn);
+            employees.map_err(self::covert_to_dyn_error)
+        }
         Err(e) => Err(Box::new(e)),
     }
 }
 
-pub fn get_employee(
-    employee_id: &Uuid,
-) -> Result<DbEmployee, Box<dyn std::error::Error + 'static>> {
+pub fn get_employee(employee_id: &Uuid) -> Result<DbEmployee, Box<DynError>> {
     let tracer = global::tracer("database-tracer");
     let span = tracer.span_builder("get_employee").start(&tracer);
 
@@ -89,10 +93,10 @@ pub fn get_employee(
         create_connection()
     });
     match connection {
-        Ok(conn) => match employee.find(employee_id).first(&conn) {
-            Ok(e) => Ok(e),
-            Err(e) => Err(Box::new(e)),
-        },
+        Ok(conn) => {
+            let sought_employee = employee.find(employee_id).first(&conn);
+            sought_employee.map_err(self::covert_to_dyn_error)
+        }
         Err(e) => Err(Box::new(e)),
     }
 }
