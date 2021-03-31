@@ -11,6 +11,7 @@
   "devDependencies": {
     "@opentelemetry/api": "^1.0.0-rc.0",
     "@opentelemetry/core": "0.18.0",
+    "@opentelemetry/context-async-hooks": "0.18.0",
     "@opentelemetry/exporter-collector": "^0.18.0",
     "@opentelemetry/exporter-collector-grpc": "^0.18.0",
     "@opentelemetry/instrumentation-dns": "^0.14.0",

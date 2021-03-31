@@ -4,9 +4,14 @@ import { CollectorTraceExporter } from '@opentelemetry/exporter-collector-grpc';
 import { registerInstrumentations } from '@opentelemetry/instrumentation'
 import { HttpInstrumentation } from '@opentelemetry/instrumentation-http'
 import { GrpcInstrumentation } from '@opentelemetry/instrumentation-grpc'
+import { context, trace } from '@opentelemetry/api';
+import { AsyncHooksContextManager } from '@opentelemetry/context-async-hooks';
 
 const SERVICE_NAME: string = 'payroll-service';
 const OTEL_COLLECTOR_URI = process.env.OTEL_COLLECTOR_URI || 'http://otel-collector:4317';
+
+const contextManager = new AsyncHooksContextManager();
+contextManager.enable();
 
 const provider = new NodeTracerProvider();
 registerInstrumentations({
@@ -28,9 +33,13 @@ const exporter = new CollectorTraceExporter({
     serviceName: SERVICE_NAME, 
     url: OTEL_COLLECTOR_URI
 });
+
 provider.addSpanProcessor(new BatchSpanProcessor(exporter));
-provider.register();
+provider.register({ contextManager });
+
+context.setGlobalContextManager(contextManager);
+trace.setGlobalTracerProvider(provider);
+
 
 console.log('Tracing Initialized');
-
 
