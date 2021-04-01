@@ -1,0 +1,41 @@
+syntax = "proto3"; 
+
+import "google/protobuf/empty.proto";
+
+option csharp_namespace = "OTeL.Demo.PayCheck";
+
+package paycheck;
+
+service PayService {
+    rpc GetAllPaychecks(google.protobuf.Empty) returns (GetAllPaychecksResponse);
+    rpc GetPaycheck(GetPaycheckRequest) returns (GetPaycheckResponse);
+    rpc GetEmployeePaychecks(GetEmployeePaychecksRequest) returns (GetEmployeePaychecksResponse);
+}
+
+message Paycheck {
+    string id = 1;
+    string employee_id = 2; 
+    float amount = 3;
+    float work_hours = 4;
+}
+
+message GetAllPaychecksResponse {
+    repeated Paycheck paychecks = 1;
+}
+
+message GetPaycheckRequest {
+    string paycheck_id = 1;
+}
+
+message GetPaycheckResponse {
+    Paycheck paycheck = 1;
+}
+
+message GetEmployeePaychecksRequest {
+    string employee_id = 1;
+}
+
+message GetEmployeePaychecksResponse {
+    repeated Paycheck paychecks = 1;
+}
+
