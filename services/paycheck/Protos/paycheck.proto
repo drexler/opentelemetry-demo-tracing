@@ -12,11 +12,34 @@ service PayService {
     rpc GetEmployeePaychecks(GetEmployeePaychecksRequest) returns (GetEmployeePaychecksResponse);
 }
 
+message PayAmount {
+    float current_period = 1;
+    float year_to_date = 2;
+}
+
+message Earnings {
+    string type = 1;
+    float rate = 2;
+    int32 hours_worked = 3;
+    PayAmount gross_pay = 4;
+}
+
+message Deductions {
+    PayAmount federal_tax = 1;
+    PayAmount state_tax = 2; 
+    PayAmount social_security = 3; 
+    PayAmount medicare = 4; 
+    PayAmount health = 5; 
+    PayAmount dental = 6; 
+    PayAmount retirement = 7;
+}
+
 message Paycheck {
     string id = 1;
-    string employee_id = 2; 
-    float amount = 3;
-    float work_hours = 4;
+    string period_start_date = 2; 
+    string period_end_date = 3;
+    Earnings earnings = 4;
+    Deductions deductions = 5;
 }
 
 message GetAllPaychecksResponse {

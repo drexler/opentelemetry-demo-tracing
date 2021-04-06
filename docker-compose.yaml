@@ -75,4 +75,15 @@ services:
       - POSTGRES_PASSWORD=password
       - POSTGRES_USER=postgres
       - POSTGRES_DB=employee
-      
+  
+  pay-db:
+    container_name: pay-database
+    build: 
+        context: ./databases/pay
+        dockerfile: Dockerfile
+    ports:
+      - "27017:27017"
+    environment: 
+      MONGO_INITDB_ROOT_USERNAME: mongo
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: pay
