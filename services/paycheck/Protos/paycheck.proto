@@ -2,7 +2,7 @@ syntax = "proto3";
 
 import "google/protobuf/empty.proto";
 
-option csharp_namespace = "OTeL.Demo.PayCheck";
+option csharp_namespace = "app";
 
 package paycheck;
 
@@ -13,14 +13,14 @@ service PayService {
 }
 
 message PayAmount {
-    float current_period = 1;
-    float year_to_date = 2;
+    double current_period = 1;
+    double year_to_date = 2;
 }
 
 message Earnings {
     string type = 1;
-    float rate = 2;
-    int32 hours_worked = 3;
+    double rate = 2;
+    int32 hours = 3;
     PayAmount gross_pay = 4;
 }
 
@@ -36,10 +36,11 @@ message Deductions {
 
 message Paycheck {
     string id = 1;
-    string period_start_date = 2; 
-    string period_end_date = 3;
-    Earnings earnings = 4;
-    Deductions deductions = 5;
+    string employee_id = 2;
+    string period_start_date = 3; 
+    string period_end_date = 4;
+    Earnings earnings = 5;
+    Deductions deductions = 6;
 }
 
 message GetAllPaychecksResponse {

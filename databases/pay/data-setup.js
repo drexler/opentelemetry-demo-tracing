@@ -156,11 +156,11 @@ db.paycheck.insert({
         }
     },
     deductions: {
-        federal: {
+        federal_tax: {
             current_period: 12.13,
             year_to_date: 78.19,
         },
-        state: {
+        state_tax: {
             current_period: 98.13,
             year_to_date: 784.19,
         },
@@ -188,11 +188,11 @@ db.paycheck.insert({
         }
     },
     deductions: {
-        federal: {
+        federal_tax: {
             current_period: 12.13,
             year_to_date: 78.19,
         },
-        state: {
+        state_tax: {
             current_period: 98.13,
             year_to_date: 784.19,
         },
