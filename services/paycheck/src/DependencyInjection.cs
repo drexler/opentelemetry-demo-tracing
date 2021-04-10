@@ -72,26 +72,22 @@ namespace app
 
         public static void ConfigureWebApplication(IWebHostBuilder cfg)
         {
-            // MacOS doesn't support ALPN. See https://docs.microsoft.com/en-us/aspnet/core/grpc/troubleshoot?view=aspnetcore-3.1#unable-to-start-aspnet-core-grpc-app-on-macos
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            var port = Environment.GetEnvironmentVariable("SERVICE_PORT") ?? "5000";
+            var servicePort = int.Parse(port);
+            
+            // Setup a HTTP/2 endpoint without TLS.
+            cfg.ConfigureKestrel(options =>
             {
-                cfg.ConfigureKestrel(options =>
+                // https://docs.microsoft.com/en-us/aspnet/core/grpc/troubleshoot?view=aspnetcore-5.0#unable-to-start-aspnet-core-grpc-app-on-macos
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                 {
-                        // Setup a HTTP/2 endpoint without TLS.
-                        options.ListenLocalhost(5000, o => o.Protocols = HttpProtocols.Http2);
-                });
-            }
-            else
-            {
-                cfg.ConfigureKestrel(options =>
-                    {
-                        // TODO: Use another port (5001) and https
-                        options.ListenAnyIP(5000, o =>
-                        {
-                            o.Protocols = HttpProtocols.Http2;
-                        });
-                    });
-            }
+                   options.ListenLocalhost(servicePort, o => o.Protocols = HttpProtocols.Http2); 
+                }
+                else 
+                {
+                   options.ListenAnyIP(servicePort, o => o.Protocols = HttpProtocols.Http2); 
+                }
+            });
 
             cfg.Configure((ctx, app) =>
             {

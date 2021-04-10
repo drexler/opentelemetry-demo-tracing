@@ -59,7 +59,19 @@ services:
         - OTEL_COLLECTOR_URI=http://otel-collector:4317
         - DATABASE_URL=postgresql://postgres:password@employee-db:5432/employee
     depends_on:
-      - employee-db
+      - employee-db 
+
+  paycheck-service:
+    container_name: paycheck-service
+    build:
+      context: ./services/paycheck
+      dockerfile: Dockerfile
+    environment:
+        - SERVICE_PORT=50051
+        - OTEL_COLLECTOR_URI=http://otel-collector:4317
+        - DATABASE_URL=mongodb://mongo:password@pay-db:27017
+    depends_on:
+      - pay-db
 
 ##------------------------------------------------------
 ### Databases
