@@ -5,12 +5,17 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+
 using MongoDB.Driver;
 using AutoMapper;
+using OpenTelemetry;
+using OpenTelemetry.Trace;
+using OpenTelemetry.Resources;
 
 using app.Services;
 using app.Repositories;
 using app.Profiles;
+
 
 namespace app
 {
@@ -43,6 +48,19 @@ namespace app
             {
                 cfg.AddProfile(new PayProfile());
             }).CreateMapper());
+
+            // OpenTelemetry configuration
+            AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
+
+            // TODO: read from environment variables
+            services.AddOpenTelemetryTracing((builder) => builder
+                .AddAspNetCoreInstrumentation()
+                .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("paycheck-service"))
+                .AddOtlpExporter(options =>
+                {
+                    options.ExportProcessorType = ExportProcessorType.Batch;
+                    options.Endpoint = new Uri("http://localhost:4317");
+                }));
 
         }
 
