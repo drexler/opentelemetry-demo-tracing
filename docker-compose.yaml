@@ -48,6 +48,7 @@ services:
       - SERVICE_PORT=55050
       - OTEL_COLLECTOR_URI=http://otel-collector:4317
       - EMPLOYEE_SERVICE_URI=employee-service:50052
+      - PAYCHECK_SERVICE_URI=paycheck-service:50051
 
   employee-service:
     container_name: employee-service

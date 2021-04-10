@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import * as bodyParser from 'body-parser';
-import {employeesRouter} from './routes'
+import {employeesRouter, paychecksRouter} from './routes'
 import {errorHandler, notFoundHandler} from './middlewares';
 
 
@@ -11,6 +11,7 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json())
 app.use('/employees', employeesRouter);
+app.use('/paychecks', paychecksRouter);
 app.use(notFoundHandler);
 app.use(errorHandler);
 

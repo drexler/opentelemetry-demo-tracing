@@ -2,19 +2,45 @@ syntax = "proto3";
 
 import "google/protobuf/empty.proto";
 
-package  otel.demo.proto.paychecks.v1;
+option csharp_namespace = "app";
 
-service PaycheckService {
+package paycheck;
+
+service PayService {
     rpc GetAllPaychecks(google.protobuf.Empty) returns (GetAllPaychecksResponse);
     rpc GetPaycheck(GetPaycheckRequest) returns (GetPaycheckResponse);
     rpc GetEmployeePaychecks(GetEmployeePaychecksRequest) returns (GetEmployeePaychecksResponse);
 }
 
+message PayAmount {
+    double current_period = 1;
+    double year_to_date = 2;
+}
+
+message Earnings {
+    string type = 1;
+    double rate = 2;
+    int32 hours = 3;
+    PayAmount gross_pay = 4;
+}
+
+message Deductions {
+    PayAmount federal_tax = 1;
+    PayAmount state_tax = 2; 
+    PayAmount social_security = 3; 
+    PayAmount medicare = 4; 
+    PayAmount health = 5; 
+    PayAmount dental = 6; 
+    PayAmount retirement = 7;
+}
+
 message Paycheck {
     string id = 1;
-    string employee_id = 2; 
-    float amount = 3;
-    float work_hours = 4;
+    string employee_id = 2;
+    string period_start_date = 3; 
+    string period_end_date = 4;
+    Earnings earnings = 5;
+    Deductions deductions = 6;
 }
 
 message GetAllPaychecksResponse {
@@ -36,4 +62,5 @@ message GetEmployeePaychecksRequest {
 message GetEmployeePaychecksResponse {
     repeated Paycheck paychecks = 1;
 }
+
 
