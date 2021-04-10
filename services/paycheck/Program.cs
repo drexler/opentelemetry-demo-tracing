@@ -1,15 +1,9 @@
-// using System.Runtime.InteropServices;
-// using Microsoft.AspNetCore.Hosting;
-// using Microsoft.Extensions.Hosting;
-// using Microsoft.AspNetCore.Server.Kestrel.Core;
-// using Serilog;
-
 using System;
-using System.Runtime.InteropServices;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Events;
 
@@ -27,48 +21,34 @@ namespace app
                     outputTemplate: "[{Level:u3}] {Message:lj} {NewLine}{Exception}")
                 .CreateLogger();
 
+               Log.Logger.Information("Creating Host");
+
             try
             {
-                Log.Information("Starting web host");
-                CreateHostBuilder(args).Build().Run();
+               var hb = new HostBuilder()
+                .ConfigureWebHostDefaults(DependencyInjection.ConfigureWebApplication)
+                .ConfigureAppConfiguration(DependencyInjection.ConfigureConfiguration)
+                .ConfigureServices(DependencyInjection.ConfigureServices)
+                .ConfigureServices(DependencyInjection.ConfigureTracing)
+                .UseSerilog()
+                .Build();
+
+                hb.Services.GetRequiredService<ILogger<Program>>().LogInformation("Running Host");
+                hb.Run();
+
+                Log.Logger.Information("Graceful host termination");
+                Environment.ExitCode = 0;
+
             }
             catch (Exception ex)
             {
-                Log.Fatal(ex, "Host terminated unexpectedly");
+                Log.Fatal(ex, "Oh nein, die Software ist Kaput!");
             }
             finally
             {
                 Log.CloseAndFlush();
             }
         }
-
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-             Host.CreateDefaultBuilder(args)
-                 .ConfigureWebHostDefaults(webBuilder =>
-                 {
-                    // MacOS doesn't support ALPN. See https://docs.microsoft.com/en-us/aspnet/core/grpc/troubleshoot?view=aspnetcore-3.1#unable-to-start-aspnet-core-grpc-app-on-macos
-                    if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                    {
-                         webBuilder.ConfigureKestrel(options =>
-                         {
-                            // Setup a HTTP/2 endpoint without TLS.
-                            options.ListenLocalhost(5000, o => o.Protocols = HttpProtocols.Http2);
-                         });
-                    }
-                    else
-                    {
-                        webBuilder.ConfigureKestrel(options =>
-                         {
-                             // TODO: Use another port (5001) and https
-                            options.ListenAnyIP(5000, o =>
-                            {
-                                o.Protocols = HttpProtocols.Http2;
-                            });
-                         });
-                    }
-
-                    webBuilder.UseStartup<Startup>();
-                 }).UseSerilog();
     }
     
 }
