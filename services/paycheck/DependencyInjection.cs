@@ -28,12 +28,16 @@ namespace app
             services.AddSingleton<IPayService, InternalPayService>();
             services.AddSingleton<IMongoClient>(c =>
             {
-                // TODO: read from environment variables.
-                var login = "mongo";
-                var password = "password";
-                var server = "localhost"; //"pay-db";
+                var databaseUri = Environment.GetEnvironmentVariable("DATABASE_URL"); 
+                if (databaseUri == null)
+                {
+                    var username = "mongo";
+                    var password = "password";
+                    var server = "localhost";
+                    databaseUri = $"mongodb://{username}:{password}@{server}:27017"; 
+                }
 
-                return new MongoClient($"mongodb://{login}:{password}@{server}:27017/?authSource=admin&readPreference=primary&ssl=false");
+                return new MongoClient($"{databaseUri}/?authSource=admin&readPreference=primary&ssl=false");
             });
 
             services.AddTransient(c => c.GetService<IMongoClient>().StartSession());
@@ -52,17 +56,17 @@ namespace app
 
         public static void ConfigureTracing(IServiceCollection services)
         {
-            // Necessary for OpenTelemetry Collector communication.
+            // Necessary for OpenTelemetry Collector communication since traffic is unencrypted for demo purposes
             AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
 
-            // TODO: read from environment variables
             services.AddOpenTelemetryTracing((builder) => builder
                 .AddAspNetCoreInstrumentation()
                 .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("paycheck-service"))
                 .AddOtlpExporter(options =>
                 {
+                    var otelCollectorUri = Environment.GetEnvironmentVariable("OTEL_COLLECTOR_URI") ?? "http://localhost:4317";
                     options.ExportProcessorType = ExportProcessorType.Batch;
-                    options.Endpoint = new Uri("http://localhost:4317");
+                    options.Endpoint = new Uri(otelCollectorUri);
                 }));
         }
 
