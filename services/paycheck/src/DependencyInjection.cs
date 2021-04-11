@@ -60,6 +60,7 @@ namespace app
             AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
 
             services.AddOpenTelemetryTracing((builder) => builder
+                .AddSource("paycheck-db-conn")
                 .AddAspNetCoreInstrumentation()
                 .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("paycheck-service"))
                 .AddOtlpExporter(options =>

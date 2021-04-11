@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -8,28 +10,81 @@ using MongoDB.Driver;
 
 namespace app.Repositories
 {
-   public class PayRepository : BaseRepository<Pay>, IPayRepository
+    public class PayRepository : BaseRepository<Pay>, IPayRepository
     {
+        private readonly ActivitySource _activitySource;
         public PayRepository(
             IMongoClient mongoClient,
             IClientSessionHandle clientSessionHandle) : base(mongoClient, clientSessionHandle, "paycheck")
         {
+            _activitySource = new ActivitySource("paycheck-db-conn");
         }
 
-        public async Task<IEnumerable<Pay>> GetAllPaychecksAsync() =>
-            await Collection.AsQueryable().ToListAsync();
-
-        public async Task<Pay> GetPaycheckAsync(string paycheckId) 
+        public async Task<IEnumerable<Pay>> GetAllPaychecksAsync()
         {
-            var filter = Builders<Pay>.Filter.Eq(p => p.Id, paycheckId);
-            return await Collection.Find(filter).FirstOrDefaultAsync();       
+            var span = _activitySource.StartActivity("GetAllPaychecksAsync");
+            List<Pay> result = null;
+            try
+            {
+                result = await Collection.AsQueryable().ToListAsync();
+                span.AddTag("paychecks.count", result.Count);
+            }
+            catch (Exception ex)
+            {
+                span.AddEvent(new ActivityEvent($"Call Failure. Reason: {ex.Message}"));
+                throw;
+            }
+            finally
+            {
+                span.Stop();
+            }
+
+            return result;
         }
 
-        public async Task<IEnumerable<Pay>> GetEmployeePaychecksAsync(string employeeId) 
+        public async Task<Pay> GetPaycheckAsync(string paycheckId)
         {
-           var filter = Builders<Pay>.Filter.Eq(p => p.EmployeeId, employeeId);
-           return await Collection.Find(filter).ToListAsync();
+            var span = _activitySource.StartActivity("GetPaycheckAsync");
+            Pay result = null;
+            try
+            {
+                var filter = Builders<Pay>.Filter.Eq(p => p.Id, paycheckId);
+                result = await Collection.Find(filter).FirstOrDefaultAsync();
+            }
+            catch (Exception ex)
+            {
+                span.AddEvent(new ActivityEvent($"Call Failure. Reason: {ex.Message}"));
+                throw;
+            }
+            finally
+            {
+                span.Stop();
+            }
+
+            return result;
         }
-            
+
+        public async Task<IEnumerable<Pay>> GetEmployeePaychecksAsync(string employeeId)
+        {
+            var span = _activitySource.StartActivity("GetEmployeePaychecksAsync");
+            List<Pay> result = null;
+            try
+            {
+                var filter = Builders<Pay>.Filter.Eq(p => p.EmployeeId, employeeId);
+                result = await Collection.Find(filter).ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                span.AddEvent(new ActivityEvent($"Call Failure. Reason: {ex.Message}"));
+                throw;
+            }
+            finally
+            {
+                span.Stop();
+            }
+
+            return result;
+        }
+
     }
 }
