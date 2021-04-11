@@ -4,9 +4,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
-using app.Entities;
-
 using MongoDB.Driver;
+
+using app.Entities;
 
 namespace app.Repositories
 {

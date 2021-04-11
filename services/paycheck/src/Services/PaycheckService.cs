@@ -1,13 +1,14 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
-using Grpc.Core;
-using Microsoft.Extensions.Logging;
-using Google.Protobuf.WellKnownTypes;
 
-using app.Services;
+using Grpc.Core;
+using Google.Protobuf.WellKnownTypes;
+using Microsoft.Extensions.Logging;
+
 using app.Exceptions;
+using app.Services;
+
 namespace app
 {
     public class PaycheckService : PayService.PayServiceBase

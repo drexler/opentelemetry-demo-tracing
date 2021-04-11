@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
 using AutoMapper;
 
 using app.Repositories;
-using app.Entities;
 using app.Exceptions;
 
 namespace app.Services

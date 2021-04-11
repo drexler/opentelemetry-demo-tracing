@@ -1,6 +1,4 @@
-using System.Collections.Generic;
 using AutoMapper;
-
 
 namespace app.Profiles
 {

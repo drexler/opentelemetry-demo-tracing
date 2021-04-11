@@ -1,5 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
+
+using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -7,16 +9,14 @@ using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-
 using MongoDB.Driver;
-using AutoMapper;
 using OpenTelemetry;
 using OpenTelemetry.Trace;
 using OpenTelemetry.Resources;
 
-using app.Services;
-using app.Repositories;
 using app.Profiles;
+using app.Repositories;
+using app.Services;
 
 namespace app
 {
