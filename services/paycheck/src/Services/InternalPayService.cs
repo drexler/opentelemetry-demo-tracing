@@ -6,6 +6,7 @@ using AutoMapper;
 
 using app.Repositories;
 using app.Entities;
+using app.Exceptions;
 
 namespace app.Services
 {
@@ -28,9 +29,29 @@ namespace app.Services
 
         public async Task<Paycheck> GetPaycheckAsync(string paycheckId) 
         {
-            var pay = await _payRepository.GetPaycheckAsync(paycheckId);
-            var paycheck = _mapper.Map<Paycheck>(pay);
-            return paycheck;
+            try
+            {
+                var pay = await _payRepository.GetPaycheckAsync(paycheckId);
+                if (pay == null)
+                {
+                    throw new PaycheckNotFoundException($"paycheck with id: {paycheckId} not found");
+                }
+
+                var paycheck = _mapper.Map<Paycheck>(pay);
+                return paycheck;
+            }
+            catch(FormatException ex) 
+            {
+                throw new InvalidParameterException(ex.Message);
+            }
+            catch(PaycheckNotFoundException)
+            {
+                throw;
+            }
+            catch(Exception ex)
+            {
+                throw new DatabaseConnectionException(ex.Message);
+            }
         }
 
         public async Task<IEnumerable<Paycheck>> GetEmployeePaychecksAsync(string employeeId) 
