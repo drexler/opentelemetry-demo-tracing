@@ -1,4 +1,4 @@
-import { HttpError } from "./model";
+import { HttpError } from "./models";
 
 // Using the error codes from https://grpc.github.io/grpc/core/md_doc_statuscodes.html
 export function convertGrpcToHttpErrorCode(grpcError: any): HttpError {

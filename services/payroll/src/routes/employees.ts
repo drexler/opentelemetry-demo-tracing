@@ -1,5 +1,5 @@
 import express, { NextFunction, Request, Response } from "express";
-import { employeeService } from '../remote-services';
+import { employeeService } from '../services';
 import * as api from '@opentelemetry/api';
 import createError from 'http-errors';
 import { convertGrpcToHttpErrorCode } from "../utils";
