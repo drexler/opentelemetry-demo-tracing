@@ -70,7 +70,9 @@ services:
     environment:
         - SERVICE_PORT=50051
         - OTEL_COLLECTOR_URI=http://otel-collector:4317
-        - DATABASE_URL=mongodb://mongo:password@pay-db:27017
+        - DATABASE_USER=mongo
+        - DATABASE_USER_PASSWORD=password
+        - DATABASE_SERVER_HOSTNAME=pay-db
     depends_on:
       - pay-db
 

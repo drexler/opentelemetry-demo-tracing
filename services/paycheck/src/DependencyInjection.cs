@@ -28,16 +28,27 @@ namespace app
             services.AddSingleton<IPayService, InternalPayService>();
             services.AddSingleton<IMongoClient>(c =>
             {
-                var databaseUri = Environment.GetEnvironmentVariable("DATABASE_URL"); 
-                if (databaseUri == null)
-                {
-                    var username = "mongo";
-                    var password = "password";
-                    var server = "localhost";
-                    databaseUri = $"mongodb://{username}:{password}@{server}:27017"; 
-                }
+                var username = Environment.GetEnvironmentVariable("DATABASE_USER") ?? "mongo";
+                var password = Environment.GetEnvironmentVariable("DATABASE_USER_PASSWORD") ?? "password";
+                var server = Environment.GetEnvironmentVariable("DATABASE_SERVER_HOSTNAME") ?? "localhost";
+                var authDbName = "admin";
+                var authMechanism = "SCRAM-SHA-1";
 
-                return new MongoClient($"{databaseUri}/?authSource=admin&readPreference=primary&ssl=false");
+                var identity = new MongoInternalIdentity(authDbName, username);
+                var evidence = new PasswordEvidence(password);
+                var credential = new MongoCredential(authMechanism, identity, evidence);
+
+                var mongoClientSettings = new MongoClientSettings
+                {
+                    Server = new MongoServerAddress(server),
+                    ServerSelectionTimeout = TimeSpan.FromSeconds(5),
+                    ReadPreference = ReadPreference.Primary,
+                    UseTls = false,
+                    Credential = credential
+                };
+
+                return new MongoClient(mongoClientSettings);
+
             });
 
             services.AddTransient(c => c.GetService<IMongoClient>().StartSession());
@@ -75,18 +86,18 @@ namespace app
         {
             var port = Environment.GetEnvironmentVariable("SERVICE_PORT") ?? "5000";
             var servicePort = int.Parse(port);
-            
+
             // Setup a HTTP/2 endpoint without TLS.
             cfg.ConfigureKestrel(options =>
             {
                 // https://docs.microsoft.com/en-us/aspnet/core/grpc/troubleshoot?view=aspnetcore-5.0#unable-to-start-aspnet-core-grpc-app-on-macos
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                 {
-                   options.ListenLocalhost(servicePort, o => o.Protocols = HttpProtocols.Http2); 
+                    options.ListenLocalhost(servicePort, o => o.Protocols = HttpProtocols.Http2);
                 }
-                else 
+                else
                 {
-                   options.ListenAnyIP(servicePort, o => o.Protocols = HttpProtocols.Http2); 
+                    options.ListenAnyIP(servicePort, o => o.Protocols = HttpProtocols.Http2);
                 }
             });
 
@@ -105,8 +116,8 @@ namespace app
 
                     endpoints.MapGet("/", async context =>
                      {
-                       await context.Response.WriteAsync("Communication with gRPC endpoints must be made through a gRPC client. To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909");
-                   });
+                         await context.Response.WriteAsync("Communication with gRPC endpoints must be made through a gRPC client. To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909");
+                     });
                 });
             });
         }
