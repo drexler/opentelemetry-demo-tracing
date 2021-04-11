@@ -28,9 +28,9 @@ namespace app
             services.AddSingleton<IPayService, InternalPayService>();
             services.AddSingleton<IMongoClient>(c =>
             {
-                var username = Environment.GetEnvironmentVariable("DATABASE_USER") ?? "mongo";
-                var password = Environment.GetEnvironmentVariable("DATABASE_USER_PASSWORD") ?? "password";
-                var server = Environment.GetEnvironmentVariable("DATABASE_SERVER_HOSTNAME") ?? "localhost";
+                var username = Environment.GetEnvironmentVariable("DATABASE_USER");
+                var password = Environment.GetEnvironmentVariable("DATABASE_USER_PASSWORD");
+                var server = Environment.GetEnvironmentVariable("DATABASE_SERVER_HOSTNAME");
                 var authDbName = "admin";
                 var authMechanism = "SCRAM-SHA-1";
 

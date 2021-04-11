@@ -13,7 +13,12 @@
             "args": [],
             "cwd": "${workspaceFolder}/src",
             "console": "internalConsole",
-            "stopAtEntry": false
+            "stopAtEntry": false,
+            "env": {
+                "DATABASE_USER": "mongo",
+                "DATABASE_USER_PASSWORD": "password",
+                "DATABASE_SERVER_HOSTNAME": "localhost"
+            }
         },
         {
             "name": ".NET Core Attach",
