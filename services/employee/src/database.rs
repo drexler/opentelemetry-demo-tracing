@@ -48,9 +48,7 @@ fn create_connection() -> ConnectionResult<PgConnection> {
     }
 }
 
-pub fn create_employee(
-    new_employee: &NewDbEmployee,
-) -> Result<DbEmployee, Box<DynError>> {
+pub fn create_employee(new_employee: &NewDbEmployee) -> Result<DbEmployee, Box<DynError>> {
     let tracer = global::tracer("database-tracer");
     let span = tracer.span_builder("create_employee").start(&tracer);
 
