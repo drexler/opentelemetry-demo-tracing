@@ -10,26 +10,24 @@ export const employeesRouter = express.Router();
 const tracer = api.trace.getTracer('payroll-tracer')
 
 /**
- * Generates information for all employeees
+ * Retrieves information for all employeees
  */
 employeesRouter.get('/', (_request: Request, response: Response, next: NextFunction) => {
     const span = tracer.startSpan('payroll: getAllEmployees');
 
-    api.context.with(api.setSpan(api.context.active(), span), () => {
+    api.context.with(api.setSpan(api.context.active(), span), async () => {
         const traceId =  span.context().traceId;
-        employeeService.getAllEmployees({}, (err: any, result: any) => {
+        try {
+            const employees = await employeeService.getAllEmployees({});
+            response.send(employees);
+        } catch (err) {
+            next(createError(...[convertGrpcToHttpErrorCode(err)], {
+                developerMessage: err.message, 
+                traceId
+            }));
+        } finally {
             span.end();
-            if (err) {
-                next(createError(...[convertGrpcToHttpErrorCode(err)], {
-                    developerMessage: err.message, 
-                    traceId
-                }));
-            } else {
-                response.send(result);
-            }
-
-
-        });
+        }
     });
 });
 
@@ -40,21 +38,20 @@ employeesRouter.get('/', (_request: Request, response: Response, next: NextFunct
  employeesRouter.get('/:employee_id', (request: Request, response: Response, next: NextFunction) => {
     const span = tracer.startSpan('payroll: getEmployee');
 
-    let employeeeId = request.params.employee_id;
-    
-    api.context.with(api.setSpan(api.context.active(), span), () => {
+    const employeeId = request.params.employee_id;
+    api.context.with(api.setSpan(api.context.active(), span), async() => {
         const traceId =  span.context().traceId;
-        employeeService.getEmployee({employee_id: employeeeId}, (err: any, result: any) => {
+        try {
+            const employee = await employeeService.getEmployee({employee_id: employeeId});
+            response.send(employee);
+        } catch (err) {
+            next(createError(...[convertGrpcToHttpErrorCode(err)], {
+                developerMessage: err.message, 
+                traceId
+            }));
+        } finally {
             span.end();
-            if (err) {
-                next(createError(...[convertGrpcToHttpErrorCode(err)], {
-                    developerMessage: err.message, 
-                    traceId
-                }));
-            } else {
-                response.send(result);
-            }
-        });
+        }
     });
 });
 
@@ -67,18 +64,23 @@ employeesRouter.get('/', (_request: Request, response: Response, next: NextFunct
 
     const { name, address, ssn, marital_status} = request.body;
 
-    api.context.with(api.setSpan(api.context.active(), span), () => {
+    api.context.with(api.setSpan(api.context.active(), span), async () => {
         const traceId =  span.context().traceId;
-        employeeService.createEmployee({name, address, ssn, marital_status}, (err: any, result: any) => {
+        try {
+            const employee = await employeeService.createEmployee({
+                name, 
+                address, 
+                ssn, 
+                marital_status
+            });
+            response.send(employee);
+        } catch (err) {
+            next(createError(...[convertGrpcToHttpErrorCode(err)], {
+                developerMessage: err.message, 
+                traceId
+            }));
+        } finally {
             span.end();
-            if (err) {
-                next(createError(...[convertGrpcToHttpErrorCode(err)], {
-                    developerMessage: err.message, 
-                    traceId
-                }));
-            } else {
-                response.send(result);
-            }
-        });
+        }
     });
 });

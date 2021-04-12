@@ -4,7 +4,6 @@ import * as api from '@opentelemetry/api';
 import createError from 'http-errors';
 import { convertGrpcToHttpErrorCode } from "../utils";
 
-
 export const paychecksRouter = express.Router();
 
 const tracer = api.trace.getTracer('payroll-tracer')
@@ -12,24 +11,22 @@ const tracer = api.trace.getTracer('payroll-tracer')
 /**
  * Generates information for all paychecks
  */
-paychecksRouter.get('/', (_request: Request, response: Response, next: NextFunction) => {
+ paychecksRouter.get('/', (_request: Request, response: Response, next: NextFunction) => {
     const span = tracer.startSpan('payroll: getAllPaychecks');
-
-    api.context.with(api.setSpan(api.context.active(), span), () => {
+    api.context.with(api.setSpan(api.context.active(), span), async () => {
         const traceId =  span.context().traceId;
-        paycheckService.getAllPaychecks({}, (err: any, result: any) => {
-            span.end();
-            if (err) {
-                next(createError(...[convertGrpcToHttpErrorCode(err)], {
-                    developerMessage: err.message, 
-                    traceId
-                }));
-            } else {
-                response.send(result);
-            }
+        try {
+            const paychecks = await paycheckService.getAllPaychecks({});
+            response.send(paychecks);
+        } catch(err) {
+            next(createError(...[convertGrpcToHttpErrorCode(err)], {
+                developerMessage: err.message, 
+                traceId
+            }));
 
-
-        });
+        } finally {
+            span.end()
+        }
     });
 });
 

@@ -1,3 +1,4 @@
+import { promisify } from 'util';
 import { HttpError } from "./models";
 
 // Using the error codes from https://grpc.github.io/grpc/core/md_doc_statuscodes.html
@@ -21,4 +22,16 @@ export function convertGrpcToHttpErrorCode(grpcError: any): HttpError {
         default: 
            return new HttpError(500, 'Server ist kaput!'); 
     }
+}
+
+// Workaround utility for converting @grpc/grpc-js callbacks to promises until it is
+// natively offered. Reference: https://github.com/grpc/grpc-node/issues/54
+export function promisifyAll(client: any): any {
+    const promisifiedFuncs: any = {}; 
+    for (const k in client) {
+        if (typeof client[k] != 'function') continue;
+        promisifiedFuncs[k] = promisify(client[k].bind(client));
+    }
+
+    return promisifiedFuncs;
 }
