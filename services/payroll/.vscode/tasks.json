@@ -1,0 +1,13 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "npm",
+			"script": "start",
+			"path": "src/",
+			"problemMatcher": [],
+			"label": "npm: start - src",
+			"detail": "ts-node -r ./tracing.ts main.ts"
+		}
+	]
+}
