@@ -2,7 +2,7 @@ import express, { NextFunction, Request, Response } from "express";
 import { paycheckService } from '../services';
 import * as api from '@opentelemetry/api';
 import createError from 'http-errors';
-import { convertGrpcToHttpErrorCode } from "../utils";
+import { convertGrpcToHttpErrorCode, getGrpcErrorMessage } from "../utils";
 
 export const paychecksRouter = express.Router();
 
@@ -20,7 +20,7 @@ const tracer = api.trace.getTracer('payroll-tracer')
             response.send(paychecks);
         } catch(err) {
             next(createError(...[convertGrpcToHttpErrorCode(err)], {
-                developerMessage: err.message, 
+                developerMessage: getGrpcErrorMessage(err.message), 
                 traceId
             }));
 

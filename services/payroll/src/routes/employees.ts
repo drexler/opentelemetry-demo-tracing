@@ -2,7 +2,7 @@ import express, { NextFunction, Request, Response } from "express";
 import { employeeService } from '../services';
 import * as api from '@opentelemetry/api';
 import createError from 'http-errors';
-import { convertGrpcToHttpErrorCode } from "../utils";
+import { convertGrpcToHttpErrorCode, getGrpcErrorMessage } from "../utils";
 
 
 export const employeesRouter = express.Router();
@@ -22,7 +22,7 @@ employeesRouter.get('/', (_request: Request, response: Response, next: NextFunct
             response.send(employees);
         } catch (err) {
             next(createError(...[convertGrpcToHttpErrorCode(err)], {
-                developerMessage: err.message, 
+                developerMessage: getGrpcErrorMessage(err.message), 
                 traceId
             }));
         } finally {
@@ -46,7 +46,7 @@ employeesRouter.get('/', (_request: Request, response: Response, next: NextFunct
             response.send(employee);
         } catch (err) {
             next(createError(...[convertGrpcToHttpErrorCode(err)], {
-                developerMessage: err.message, 
+                developerMessage: getGrpcErrorMessage(err.message), 
                 traceId
             }));
         } finally {
@@ -76,7 +76,7 @@ employeesRouter.get('/', (_request: Request, response: Response, next: NextFunct
             response.send(employee);
         } catch (err) {
             next(createError(...[convertGrpcToHttpErrorCode(err)], {
-                developerMessage: err.message, 
+                developerMessage: getGrpcErrorMessage(err.message), 
                 traceId
             }));
         } finally {

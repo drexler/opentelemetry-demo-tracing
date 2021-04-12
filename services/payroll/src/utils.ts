@@ -24,6 +24,15 @@ export function convertGrpcToHttpErrorCode(grpcError: any): HttpError {
     }
 }
 
+ /**
+  * Extracts the descriptive message from an RPC Error. 
+  * @param rawErrorMessage 
+  * @returns 
+  */
+export function getGrpcErrorMessage(rawErrorMessage: string) : string {
+    return rawErrorMessage.split(':')[1].trim();
+}
+
 // Workaround utility for converting @grpc/grpc-js callbacks to promises until it is
 // natively offered. Reference: https://github.com/grpc/grpc-node/issues/54
 export function promisifyAll(client: any): any {
