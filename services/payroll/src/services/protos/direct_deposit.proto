@@ -2,7 +2,7 @@ syntax = "proto3";
 
 import "google/protobuf/empty.proto";
 
-package  otel.demo.proto.direct_deposits.v1;
+package  directdeposit;
 
 service DirectDepositService {
     rpc GetAllDirectDeposits(google.protobuf.Empty) returns (GetAllDirectDepositsResponse);
