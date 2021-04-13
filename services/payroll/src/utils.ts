@@ -30,7 +30,8 @@ export function convertGrpcToHttpErrorCode(grpcError: any): HttpError {
   * @returns 
   */
 export function getGrpcErrorMessage(rawErrorMessage: string) : string {
-    return rawErrorMessage.split(':')[1].trim();
+    const messageStartIndex = rawErrorMessage.indexOf(':');
+    return rawErrorMessage.substring(messageStartIndex + 1).trim();
 }
 
 // Workaround utility for converting @grpc/grpc-js callbacks to promises until it is
