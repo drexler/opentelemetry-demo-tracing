@@ -15,7 +15,7 @@ namespace app.Repositories
         private readonly ActivitySource _activitySource;
         public PayRepository(
             IMongoClient mongoClient,
-            IClientSessionHandle clientSessionHandle) : base(mongoClient, clientSessionHandle, "paycheck")
+            IClientSessionHandle clientSessionHandle) : base(mongoClient, clientSessionHandle, "paychecks")
         {
             _activitySource = new ActivitySource("paycheck-db-conn");
         }

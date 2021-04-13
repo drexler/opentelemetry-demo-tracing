@@ -1,8 +1,7 @@
 
-let res = [
-  // add paycheck items
-  db.paycheck.drop(),
-  db.paycheck.insert({ 
+let paychecks = [
+  db.paychecks.drop(),
+  db.paychecks.insert({ 
       employee_id: 'f34656d4-2b7a-4a26-952d-12e0e56624d8',
       period_start_date: '2016-01-01T00:01:06.000Z',
       period_end_date: '2016-01-14T00:01:06.000Z',
@@ -42,7 +41,7 @@ let res = [
         } 
       }
   }),
-  db.paycheck.insert({ 
+  db.paychecks.insert({ 
     employee_id: '54d2176f-72ac-4d3f-b51c-3335af2eb4cc',
     period_start_date: '2016-01-01T00:01:06.000Z',
     period_end_date: '2016-01-14T00:01:06.000Z',
@@ -74,7 +73,7 @@ let res = [
         },
     }
 }),
-db.paycheck.insert({ 
+db.paychecks.insert({ 
     employee_id: 'e31ed5a2-85b3-47ab-bccb-25bb96f3feb7',
     period_start_date: '2016-01-01T00:01:06.000Z',
     period_end_date: '2016-01-14T00:01:06.000Z',
@@ -106,7 +105,7 @@ db.paycheck.insert({
         },
     }
 }),
-db.paycheck.insert({ 
+db.paychecks.insert({ 
     employee_id: '185907ee-5989-41dc-98ee-6c5bd4f92340',
     period_start_date: '2016-01-01T00:01:06.000Z',
     period_end_date: '2016-01-14T00:01:06.000Z',
@@ -142,7 +141,7 @@ db.paycheck.insert({
         }
     }
 }),
-db.paycheck.insert({ 
+db.paychecks.insert({ 
     employee_id: 'dc0ca5c5-2239-42ec-8860-c367a78a6b63',
     period_start_date: '2016-01-01T00:01:06.000Z',
     period_end_date: '2016-01-14T00:01:06.000Z',
@@ -174,7 +173,7 @@ db.paycheck.insert({
         },
     }
 }),
-db.paycheck.insert({ 
+db.paychecks.insert({ 
     employee_id: 'ed8f1274-7a2f-45d1-86da-0bdf3e4e0055',
     period_start_date: '2016-01-01T00:01:06.000Z',
     period_end_date: '2016-01-14T00:01:06.000Z',
@@ -208,4 +207,23 @@ db.paycheck.insert({
 }),
 ]
 
-printjson(res)
+
+let direct_deposits = [
+    db.direct_deposits.drop(),
+    db.direct_deposits.insert({ 
+        employee_id: 'f34656d4-2b7a-4a26-952d-12e0e56624d8',
+        account_type: 'Checking',
+        account_number: '112233445566778899',
+        routing_number: '001234598765132436'
+    }),
+    db.direct_deposits.insert({ 
+        employee_id: 'ed8f1274-7a2f-45d1-86da-0bdf3e4e0055',
+        account_type: 'MoneyMarket',
+        account_number: '1111111111111',
+        routing_number: '001234598765132436'
+    }),
+]
+
+// Add paychecks & direct deposits
+printjson(paychecks)
+printjson(direct_deposits)
