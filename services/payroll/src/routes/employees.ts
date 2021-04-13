@@ -2,7 +2,7 @@ import express, { NextFunction, Request, Response } from "express";
 import { employeeService, paycheckService } from '../services';
 import * as api from '@opentelemetry/api';
 import createError from 'http-errors';
-import { convertGrpcToHttpErrorCode, getGrpcErrorMessage } from "../utils";
+import { convertGrpcToHttpErrorCode, getGrpcErrorMessage, formatResponse } from "../utils";
 
 
 export const employeesRouter = express.Router();
@@ -18,8 +18,8 @@ employeesRouter.get('/', (_request: Request, response: Response, next: NextFunct
     api.context.with(api.setSpan(api.context.active(), span), async () => {
         const traceId =  span.context().traceId;
         try {
-            const employees = await employeeService.getAllEmployees({});
-            response.send(employees);
+            const results = await employeeService.getAllEmployees({});
+            response.send(formatResponse(results.employees));
         } catch (err) {
             next(createError(...[convertGrpcToHttpErrorCode(err)], {
                 developerMessage: getGrpcErrorMessage(err.message), 
@@ -42,8 +42,8 @@ employeesRouter.get('/', (_request: Request, response: Response, next: NextFunct
     api.context.with(api.setSpan(api.context.active(), span), async() => {
         const traceId =  span.context().traceId;
         try {
-            const employee = await employeeService.getEmployee({employee_id: employeeId});
-            response.send(employee);
+            const results = await employeeService.getEmployee({employee_id: employeeId});
+            response.send(formatResponse(results.employee));
         } catch (err) {
             next(createError(...[convertGrpcToHttpErrorCode(err)], {
                 developerMessage: getGrpcErrorMessage(err.message), 
@@ -67,13 +67,13 @@ employeesRouter.get('/', (_request: Request, response: Response, next: NextFunct
     api.context.with(api.setSpan(api.context.active(), span), async () => {
         const traceId =  span.context().traceId;
         try {
-            const employee = await employeeService.createEmployee({
+            const result = await employeeService.createEmployee({
                 name, 
                 address, 
                 ssn, 
                 marital_status
             });
-            response.send(employee);
+            response.send(formatResponse(result.employee));
         } catch (err) {
             next(createError(...[convertGrpcToHttpErrorCode(err)], {
                 developerMessage: getGrpcErrorMessage(err.message), 
@@ -95,8 +95,8 @@ employeesRouter.get('/', (_request: Request, response: Response, next: NextFunct
     api.context.with(api.setSpan(api.context.active(), span), async() => {
         const traceId =  span.context().traceId;
         try {
-            const paychecks = await paycheckService.getEmployeePaychecks({employee_id: employeeId});
-            response.send(paychecks);
+            const results = await paycheckService.getEmployeePaychecks({employee_id: employeeId});
+            response.send(formatResponse(results.paychecks));
         } catch (err) {
             next(createError(...[convertGrpcToHttpErrorCode(err)], {
                 developerMessage: getGrpcErrorMessage(err.message), 

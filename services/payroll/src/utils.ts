@@ -44,3 +44,17 @@ export function promisifyAll(client: any): any {
 
     return promisifiedFuncs;
 }
+
+export function formatResponse(response: any) : any {
+    if (Array.isArray(response)) {
+        return {
+            count: response.length,
+            results: response,
+        }
+    }
+    if (response) {
+        return { ...response }
+    }
+
+    return undefined;
+}

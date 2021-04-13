@@ -2,7 +2,7 @@ import express, { NextFunction, Request, Response } from "express";
 import { paycheckService } from '../services';
 import * as api from '@opentelemetry/api';
 import createError from 'http-errors';
-import { convertGrpcToHttpErrorCode, getGrpcErrorMessage } from "../utils";
+import { convertGrpcToHttpErrorCode, getGrpcErrorMessage, formatResponse } from "../utils";
 
 export const paychecksRouter = express.Router();
 
@@ -16,8 +16,8 @@ const tracer = api.trace.getTracer('payroll-tracer')
     api.context.with(api.setSpan(api.context.active(), span), async () => {
         const traceId =  span.context().traceId;
         try {
-            const paychecks = await paycheckService.getAllPaychecks({});
-            response.send(paychecks);
+            const results = await paycheckService.getAllPaychecks({});
+            response.send(formatResponse(results.paychecks));
         } catch(err) {
             next(createError(...[convertGrpcToHttpErrorCode(err)], {
                 developerMessage: getGrpcErrorMessage(err.message), 
@@ -40,8 +40,8 @@ const tracer = api.trace.getTracer('payroll-tracer')
     api.context.with(api.setSpan(api.context.active(), span), async () => {
         const traceId =  span.context().traceId;
         try {
-            const paycheck = await paycheckService.getPaycheck({paycheck_id: paycheckId});
-            response.send(paycheck);
+            const results = await paycheckService.getPaycheck({paycheck_id: paycheckId});
+            response.send(formatResponse(results.paycheck));
         } catch(err) {
             next(createError(...[convertGrpcToHttpErrorCode(err)], {
                 developerMessage: getGrpcErrorMessage(err.message), 
