@@ -8,7 +8,7 @@ import { context, trace } from '@opentelemetry/api';
 import { AsyncHooksContextManager } from '@opentelemetry/context-async-hooks';
 
 const SERVICE_NAME: string = 'payroll-service';
-const OTEL_COLLECTOR_URI = process.env.OTEL_COLLECTOR_URI || 'http://otel-collector:4317';
+const OTEL_COLLECTOR_URI = process.env.OTEL_COLLECTOR_URI
 
 const contextManager = new AsyncHooksContextManager();
 contextManager.enable();
