@@ -214,13 +214,15 @@ let direct_deposits = [
         employee_id: 'f34656d4-2b7a-4a26-952d-12e0e56624d8',
         account_type: 'Checking',
         account_number: '112233445566778899',
-        routing_number: '001234598765132436'
+        routing_number: '001234598765132436',
+        prenote: true,
     }),
     db.direct_deposits.insert({ 
         employee_id: 'ed8f1274-7a2f-45d1-86da-0bdf3e4e0055',
         account_type: 'MoneyMarket',
         account_number: '1111111111111',
-        routing_number: '001234598765132436'
+        routing_number: '001234598765132436',
+        prenote: false
     }),
 ]
 

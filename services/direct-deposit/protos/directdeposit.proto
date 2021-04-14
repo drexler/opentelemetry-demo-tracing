@@ -1,0 +1,41 @@
+syntax = "proto3"; 
+
+import "google/protobuf/empty.proto";
+
+package  directdeposit;
+
+service DirectDepositService {
+    rpc GetAllDirectDeposits(google.protobuf.Empty) returns (GetAllDirectDepositsResponse);
+    rpc GetDirectDeposit(GetDirectDepositRequest) returns (GetDirectDepositResponse);
+    rpc GetEmployeeDirectDeposits(GetEmployeeDirectDepositsRequest) returns (GetEmployeeDirectDepositsResponse);
+}
+
+message DirectDeposit {
+    string id = 1;
+    string employee_id = 2; 
+    string account_type = 3;
+    string account_number = 4;
+    string routing_number = 5;
+    bool prenote = 6;
+}
+
+message GetAllDirectDepositsResponse {
+    repeated DirectDeposit direct_deposits = 1;
+}
+
+message GetDirectDepositRequest {
+    string direct_deposit_id = 1;
+}
+
+message GetDirectDepositResponse {
+    DirectDeposit direct_deposit = 1;
+}
+
+message GetEmployeeDirectDepositsRequest {
+    string employee_id = 1;
+}
+
+message GetEmployeeDirectDepositsResponse {
+    repeated DirectDeposit direct_deposits = 1;
+}
+
