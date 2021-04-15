@@ -1,5 +1,5 @@
 import express, { NextFunction, Request, Response } from "express";
-import { employeeService, paycheckService } from '../services';
+import { employeeService, paycheckService, directDepositService } from '../services';
 import * as api from '@opentelemetry/api';
 import createError from 'http-errors';
 import { convertGrpcToHttpErrorCode, getGrpcErrorMessage, formatResponse } from "../utils";
@@ -86,7 +86,7 @@ employeesRouter.get('/', (_request: Request, response: Response, next: NextFunct
 });
 
 /**
- * Gets an employee's data
+ * Gets an employee's paychecks
  */
  employeesRouter.get('/:employee_id/paychecks', (request: Request, response: Response, next: NextFunction) => {
     const span = tracer.startSpan('payroll: getEmployeePaychecks');
@@ -107,3 +107,29 @@ employeesRouter.get('/', (_request: Request, response: Response, next: NextFunct
         }
     });
 });
+
+/**
+ * Gets an employee's direct deposits
+ */
+employeesRouter.get('/:employee_id/direct-deposits', (request: Request, response: Response, next: NextFunction) => {
+    const span = tracer.startSpan('payroll: getEmployeeDirectDeposits');
+
+    const employeeId = request.params.employee_id;
+    api.context.with(api.setSpan(api.context.active(), span), async() => {
+        const traceId =  span.context().traceId;
+        try {
+            const results = await directDepositService.getEmployeeDirectDeposits({employee_id: employeeId});
+            response.send(formatResponse(results.direct_deposits));
+        } catch (err) {
+            next(createError(...[convertGrpcToHttpErrorCode(err)], {
+                developerMessage: getGrpcErrorMessage(err.message), 
+                traceId
+            }));
+        } finally {
+            span.end();
+        }
+    });
+});
+
+
+
