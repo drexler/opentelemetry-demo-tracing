@@ -1,4 +1,5 @@
 use std::env;
+use std::time::Duration;
 
 use futures::StreamExt;
 use mongodb::bson::{doc, document::Document, oid::ObjectId};
@@ -27,6 +28,7 @@ impl DirectDepositDb {
             env::var("DATABASE_USER_PASSWORD").expect("DATABASE_USER_PASSWORD must be set");
         let db_host =
             env::var("DATABASE_SERVER_HOSTNAME").expect("DATABASE_SERVER_HOSTNAME must be set");
+        let connection_timeout = 5_u64;
 
         let credential = Credential::builder()
             .username(Some(db_user))
@@ -43,6 +45,7 @@ impl DirectDepositDb {
             }])
             .app_name(Some("direct-deposit-service".into()))
             .credential(Some(credential))
+            .server_selection_timeout(Some(Duration::from_secs(connection_timeout)))
             .build();
 
         let client: Client = Client::with_options(client_options)?;
