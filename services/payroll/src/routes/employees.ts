@@ -19,7 +19,9 @@ employeesRouter.get('/', (_request: Request, response: Response, next: NextFunct
         const traceId =  span.context().traceId;
         try {
             const results = await employeeService.getAllEmployees({});
-            response.send(formatResponse(results.employees));
+            const formattedResponse = formatResponse(results.employees);
+            const httpStatusCode = formattedResponse ? 200 : 204;
+            response.status(httpStatusCode).send(formattedResponse);
         } catch (err) {
             next(createError(...[convertGrpcToHttpErrorCode(err)], {
                 developerMessage: getGrpcErrorMessage(err.message), 
@@ -119,7 +121,9 @@ employeesRouter.get('/:employee_id/direct-deposits', (request: Request, response
         const traceId =  span.context().traceId;
         try {
             const results = await directDepositService.getEmployeeDirectDeposits({employee_id: employeeId});
-            response.send(formatResponse(results.direct_deposits));
+            const formattedResponse = formatResponse(results.direct_deposits);
+            const httpStatusCode = formattedResponse ? 200 : 204;
+            response.status(httpStatusCode).send(formattedResponse);
         } catch (err) {
             next(createError(...[convertGrpcToHttpErrorCode(err)], {
                 developerMessage: getGrpcErrorMessage(err.message), 

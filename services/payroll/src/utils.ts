@@ -47,13 +47,13 @@ export function promisifyAll(client: any): any {
 }
 
 export function formatResponse(response: any) : any {
-    if (Array.isArray(response)) {
+    if (Array.isArray(response) && response.length > 0) {
         return {
             count: response.length,
             results: response,
         }
     }
-    if (response) {
+    if (response && !Array.isArray(response)) {
         return { ...response }
     }
 

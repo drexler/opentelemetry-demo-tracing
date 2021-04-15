@@ -17,7 +17,9 @@ const tracer = api.trace.getTracer('payroll-tracer')
         const traceId =  span.context().traceId;
         try {
             const results = await paycheckService.getAllPaychecks({});
-            response.send(formatResponse(results.paychecks));
+            const formattedResponse = formatResponse(results.paychecks);
+            const httpStatusCode = formattedResponse ? 200 : 204;
+            response.status(httpStatusCode).send(formattedResponse);
         } catch(err) {
             next(createError(...[convertGrpcToHttpErrorCode(err)], {
                 developerMessage: getGrpcErrorMessage(err.message), 
