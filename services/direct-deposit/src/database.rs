@@ -1,8 +1,10 @@
+use std::env;
+
 use futures::StreamExt;
 use mongodb::bson::{doc, document::Document, oid::ObjectId};
 use mongodb::options::{AuthMechanism, Credential, StreamAddress};
 use mongodb::{options::ClientOptions, Client, Collection};
-use std::env;
+use opentelemetry::{global, trace::Tracer};
 
 use crate::error;
 use crate::error::Error::*;
@@ -49,6 +51,9 @@ impl DirectDepositDb {
     }
 
     pub async fn get_all_direct_deposits(&self) -> Result<Vec<DirectDeposit>> {
+        let tracer = global::tracer("database-tracer");
+        let _span = tracer.start("get_all_direct_deposits");
+
         let mut cursor = self.get_collection().find(None, None).await?;
         let mut direct_deposits: Vec<DirectDeposit> = Vec::new();
         while let Some(item) = cursor.next().await {
@@ -61,6 +66,9 @@ impl DirectDepositDb {
     }
 
     pub async fn get_direct_deposit(&self, direct_deposit_id: &str) -> Result<DirectDeposit> {
+        let tracer = global::tracer("database-tracer");
+        let _span = tracer.start("get_deposit");
+
         let id = ObjectId::with_string(direct_deposit_id)?;
         let filter = doc! {
             "_id": id,
@@ -81,6 +89,9 @@ impl DirectDepositDb {
         &self,
         employee_id: &str,
     ) -> Result<Vec<DirectDeposit>> {
+        let tracer = global::tracer("database-tracer");
+        let _span = tracer.start("get_employee_direct_deposits");
+
         let filter = doc! {
             "employee_id": employee_id,
         };

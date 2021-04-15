@@ -11,6 +11,13 @@ use directdeposit::{
 
 use crate::database::DirectDepositDb;
 use crate::error;
+use crate::tracing;
+
+use opentelemetry::{
+    global,
+    trace::{FutureExt, TraceContextExt, Tracer},
+    Context,
+};
 
 #[derive(Clone, Debug)]
 pub struct MyDirectDepositService {
@@ -29,9 +36,20 @@ impl MyDirectDepositService {
 impl DirectDepositService for MyDirectDepositService {
     async fn get_all_direct_deposits(
         &self,
-        _request: Request<()>,
+        request: Request<()>,
     ) -> Result<Response<GetAllDirectDepositsResponse>, Status> {
-        match self.db_client.get_all_direct_deposits().await {
+        let parent_ctx = tracing::get_parent_context(&request);
+        let tracer = global::tracer("direct-deposit-service");
+        let span = tracer.start_with_context("get_all_direct_deposits", parent_ctx);
+        let ctx = Context::current_with_span(span);
+
+        let db_result = self
+            .db_client
+            .get_all_direct_deposits()
+            .with_context(ctx)
+            .await;
+
+        match db_result {
             Ok(direct_deposits) => {
                 let result = GetAllDirectDepositsResponse { direct_deposits };
                 Ok(Response::new(result))
@@ -46,8 +64,17 @@ impl DirectDepositService for MyDirectDepositService {
         &self,
         request: Request<GetDirectDepositRequest>,
     ) -> Result<Response<GetDirectDepositResponse>, Status> {
+        let parent_ctx = tracing::get_parent_context(&request);
+        let tracer = global::tracer("direct-deposit-service");
+        let span = tracer.start_with_context("get_deposit", parent_ctx);
+        let ctx = Context::current_with_span(span);
+
         let direct_deposit_id = request.into_inner().direct_deposit_id;
-        let direct_deposit = self.db_client.get_direct_deposit(&direct_deposit_id).await;
+        let direct_deposit = self
+            .db_client
+            .get_direct_deposit(&direct_deposit_id)
+            .with_context(ctx)
+            .await;
         let direct_deposit = direct_deposit.ok();
 
         match direct_deposit {
@@ -66,13 +93,20 @@ impl DirectDepositService for MyDirectDepositService {
         &self,
         request: Request<GetEmployeeDirectDepositsRequest>,
     ) -> Result<Response<GetEmployeeDirectDepositsResponse>, Status> {
+        let parent_ctx = tracing::get_parent_context(&request);
+        let tracer = global::tracer("direct-deposit-service");
+        let span = tracer.start_with_context("get_employee_direct_deposits", parent_ctx);
+        let ctx = Context::current_with_span(span);
+
         let employee_id = request.into_inner().employee_id;
 
-        match self
+        let db_result = self
             .db_client
             .get_employee_direct_deposits(&employee_id)
-            .await
-        {
+            .with_context(ctx)
+            .await;
+
+        match db_result {
             Ok(direct_deposits) => {
                 let result = GetEmployeeDirectDepositsResponse { direct_deposits };
                 Ok(Response::new(result))
