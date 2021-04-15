@@ -60,8 +60,8 @@ impl DirectDepositDb {
         let mut cursor = self.get_collection().find(None, None).await?;
         let mut direct_deposits: Vec<DirectDeposit> = Vec::new();
         while let Some(item) = cursor.next().await {
-            let document = item.unwrap();
-            let direct_deposit = model_mapper(document).unwrap();
+            let document = item?;
+            let direct_deposit = model_mapper(document)?;
             direct_deposits.push(direct_deposit);
         }
 
@@ -81,7 +81,7 @@ impl DirectDepositDb {
         let result = cursor.next().await.unwrap();
         match result {
             Ok(document) => {
-                let direct_deposit = model_mapper(document).unwrap();
+                let direct_deposit = model_mapper(document)?;
                 Ok(direct_deposit)
             }
             Err(e) => Err(MongoQueryError(e)),
@@ -102,8 +102,8 @@ impl DirectDepositDb {
         let mut cursor = self.get_collection().find(filter, None).await?;
         let mut direct_deposits: Vec<DirectDeposit> = Vec::new();
         while let Some(item) = cursor.next().await {
-            let document = item.unwrap();
-            let direct_deposit = model_mapper(document).unwrap();
+            let document = item?;
+            let direct_deposit = model_mapper(document)?;
             direct_deposits.push(direct_deposit);
         }
 
