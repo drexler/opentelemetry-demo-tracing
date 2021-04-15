@@ -49,6 +49,7 @@ services:
       - OTEL_COLLECTOR_URI=http://otel-collector:4317
       - EMPLOYEE_SERVICE_URI=employee-service:50052
       - PAYCHECK_SERVICE_URI=paycheck-service:50051
+      - DIRECT_DEPOSIT_SERVICE_URI=direct-deposit-service:50050
 
   employee-service:
     container_name: employee-service
@@ -75,6 +76,20 @@ services:
         - DATABASE_SERVER_HOSTNAME=pay-db
     depends_on:
       - pay-db
+
+  direct-deposit-service:
+    container_name: direct-deposit-service
+    build:
+        context: ./services/direct-deposit
+        dockerfile: Dockerfile
+    environment:
+        - SERVICE_PORT=50050
+        - OTEL_COLLECTOR_URI=http://otel-collector:4317
+        - DATABASE_USER=mongo
+        - DATABASE_USER_PASSWORD=password
+        - DATABASE_SERVER_HOSTNAME=pay-db
+    depends_on:
+        - pay-db
 
 ##------------------------------------------------------
 ### Databases
