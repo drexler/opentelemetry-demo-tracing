@@ -1,19 +1,25 @@
+use tonic::{Request, Response, Status};
+
+use opentelemetry::{global, trace::Tracer};
+use uuid::Uuid;
 pub mod employee {
     tonic::include_proto!("employee");
 }
-use crate::database;
-use crate::models::{DbEmployee, NewDbEmployee};
-use crate::tracing;
-use tonic::{Request, Response, Status};
-
 use employee::employee_service_server::EmployeeService;
 use employee::{
     CreateEmployeeRequest, CreateEmployeeResponse, Employee, GetAllEmployeesResponse,
     GetEmployeeRequest, GetEmployeeResponse,
 };
 
-use opentelemetry::{global, trace::Tracer};
-use uuid::Uuid;
+use crate::database::EmployeeDb;
+use crate::error;
+use crate::models::{DbEmployee, NewDbEmployee};
+use crate::tracing;
+
+//Note: Diesel::PgConnection doesn't implement the Sync marker trait as these connections by design are meant
+// to run on a single thread. This means we can't use it as a shared reference within MyEmployeeService since the
+// EmployeeService trait requires it. That is:
+// pub trait EmployeeService: Send + Sync + 'static
 
 #[derive(Default)]
 pub struct MyEmployeeService {}
@@ -28,13 +34,12 @@ impl EmployeeService for MyEmployeeService {
         let tracer = global::tracer("employee-service");
         let span = tracer.start_with_context("get_all_employees", parent_ctx);
 
-        let db_result = tracer.with_span(
-            span,
-            |_cx| -> Result<Vec<Employee>, Box<dyn std::error::Error>> {
-                database::get_employees()
-                    .map(|employees| employees.into_iter().map(model_mapper).collect())
-            },
-        );
+        let db_result = tracer.with_span(span, |_cx| -> Result<Vec<Employee>, error::Error> {
+            let db_client = EmployeeDb::initialize()?;
+            db_client
+                .get_employees()
+                .map(|employees| employees.into_iter().map(model_mapper).collect())
+        });
 
         match db_result {
             Ok(employees) => Ok(Response::new(GetAllEmployeesResponse { employees })),
@@ -53,12 +58,10 @@ impl EmployeeService for MyEmployeeService {
         let employee_id = request.into_inner().employee_id;
         let employee_id = Uuid::parse_str(&employee_id).unwrap();
 
-        let db_result = tracer.with_span(
-            span,
-            |_cx| -> Result<Employee, Box<dyn std::error::Error>> {
-                database::get_employee(&employee_id).map(model_mapper)
-            },
-        );
+        let db_result = tracer.with_span(span, |_cx| -> Result<Employee, error::Error> {
+            let db_client = EmployeeDb::initialize()?;
+            db_client.get_employee(&employee_id).map(model_mapper)
+        });
 
         let employee = db_result.ok();
 
@@ -90,12 +93,10 @@ impl EmployeeService for MyEmployeeService {
             marital_status: params.marital_status,
         };
 
-        let db_result = tracer.with_span(
-            span,
-            |_cx| -> Result<Employee, Box<dyn std::error::Error>> {
-                database::create_employee(&new_employee).map(model_mapper)
-            },
-        );
+        let db_result = tracer.with_span(span, |_cx| -> Result<Employee, error::Error> {
+            let db_client = EmployeeDb::initialize()?;
+            db_client.create_employee(&new_employee).map(model_mapper)
+        });
 
         let employee = db_result.ok();
 

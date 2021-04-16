@@ -6,6 +6,7 @@ use opentelemetry::{global, sdk::propagation::TraceContextPropagator};
 use tonic::transport::Server;
 
 pub mod database;
+pub mod error;
 pub mod models;
 pub mod schema;
 pub mod service;
