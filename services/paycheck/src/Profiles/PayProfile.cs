@@ -13,6 +13,8 @@ namespace app.Profiles
             CreateMap<Entities.Earnings, app.Earnings>();
             CreateMap<Entities.Deductions, app.Deductions>();
             CreateMap<Entities.AmountType, app.PayAmount>();
+            CreateMap<Entities.PaymentMode, app.PaymentMode>()
+             .ForMember(destination => destination.Id, opt => opt.MapFrom(src => src.PaymentId));
         }
     }
 }

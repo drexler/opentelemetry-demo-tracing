@@ -17,6 +17,17 @@ message PayAmount {
     double year_to_date = 2;
 }
 
+enum PaymentType {
+    DIRECT_DEPOSIT = 0;
+    COLD_HARD_CASH = 1;
+    CRYPTO = 2;
+}
+
+message PaymentMode {
+    PaymentType type = 1;
+    string id = 2;
+}
+
 message Earnings {
     string type = 1;
     double rate = 2;
@@ -41,6 +52,7 @@ message Paycheck {
     string period_end_date = 4;
     Earnings earnings = 5;
     Deductions deductions = 6;
+    PaymentMode payment_mode = 7;
 }
 
 message GetAllPaychecksResponse {

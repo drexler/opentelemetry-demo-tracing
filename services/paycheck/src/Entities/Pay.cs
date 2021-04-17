@@ -2,6 +2,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 namespace app.Entities
 {
+    [BsonIgnoreExtraElements]
     public class Pay : BaseEntity
     {
         [BsonElement("employee_id")]
@@ -18,8 +19,12 @@ namespace app.Entities
 
         [BsonElement("deductions")]
         public Deductions Deductions { get; set; }
+
+        [BsonElement("payment_mode")]
+        public PaymentMode PaymentMode { get; set; }
     }
 
+    [BsonIgnoreExtraElements]
     public class Earnings
     {
         [BsonElement("type")]
@@ -60,6 +65,7 @@ namespace app.Entities
         public AmountType Retirement { get; set; }
     }
 
+    [BsonIgnoreExtraElements]
     public class AmountType
     {
         [BsonElement("current_period")]
@@ -67,5 +73,17 @@ namespace app.Entities
 
         [BsonElement("year_to_date")]
         public double YearToDate { get; set; }
+    }
+
+    [BsonIgnoreExtraElements]
+    public class PaymentMode
+    {
+        public enum PaymentType { DIRECT_DEPOSIT = 0, COLD_HARD_CASH = 1, CRYPTO = 2 }
+
+        [BsonElement("type")]
+        public PaymentType Type { get; set; }
+
+        [BsonElement("id")]
+        public string PaymentId { get; set; }
     }
 }

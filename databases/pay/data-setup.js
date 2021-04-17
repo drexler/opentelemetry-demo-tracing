@@ -39,7 +39,11 @@ let paychecks = [
             current_period: 12.12, 
             year_to_date: 100.45
         } 
-      }
+    },
+    payment_mode: {
+        type: 'DIRECT_DEPOSIT',
+        id: '5bd761dcae323e45a93ccff2' 
+    }
   }),
   db.paychecks.insert({ 
     employee_id: '54d2176f-72ac-4d3f-b51c-3335af2eb4cc',
@@ -71,6 +75,10 @@ let paychecks = [
             current_period: 93.13,
             year_to_date: 784.19,
         },
+    },
+    payment_mode: {
+        type: 'COLD_HARD_CASH',
+        id: 'f1207446-2c47-451d-ab83-0b7ff37bedb1' 
     }
 }),
 db.paychecks.insert({ 
@@ -103,6 +111,10 @@ db.paychecks.insert({
             current_period: 98.13,
             year_to_date: 784.19,
         },
+    },
+    payment_mode: {
+        type: 'CRYPTO',
+        id: 'd7d68776-0ea2-45fd-82d4-4f212b339227' 
     }
 }),
 db.paychecks.insert({ 
@@ -139,6 +151,10 @@ db.paychecks.insert({
             current_period: 300.00, 
             year_to_date: 2400.00
         }
+    },
+    payment_mode: {
+        type: 'DIRECT_DEPOSIT',
+        id: '5bd761dcae323e45a93ccff2' 
     }
 }),
 db.paychecks.insert({ 
@@ -171,6 +187,10 @@ db.paychecks.insert({
             current_period: 98.13,
             year_to_date: 784.19,
         },
+    },
+    payment_mode: {
+        type: 'CRYPTO',
+        id: 'e9ee53b1-9b9d-4642-810e-971e92ae1c8a' 
     }
 }),
 db.paychecks.insert({ 
@@ -203,6 +223,10 @@ db.paychecks.insert({
             current_period: 98.13,
             year_to_date: 784.19,
         },
+    },
+    payment_mode: {
+        type: 'DIRECT_DEPOSIT',
+        id: '5bd761dcae323e45a93cd073' 
     }
 }),
 ]
@@ -210,14 +234,16 @@ db.paychecks.insert({
 
 let direct_deposits = [
     db.direct_deposits.drop(),
-    db.direct_deposits.insert({ 
+    db.direct_deposits.insert({
+        _id: '5bd761dcae323e45a93ccff2',
         employee_id: 'f34656d4-2b7a-4a26-952d-12e0e56624d8',
         account_type: 'Checking',
         account_number: '112233445566778899',
         routing_number: '001234598765132436',
         prenote: true,
     }),
-    db.direct_deposits.insert({ 
+    db.direct_deposits.insert({
+        _id: '5bd761dcae323e45a93cd073', 
         employee_id: 'ed8f1274-7a2f-45d1-86da-0bdf3e4e0055',
         account_type: 'MoneyMarket',
         account_number: '1111111111111',
