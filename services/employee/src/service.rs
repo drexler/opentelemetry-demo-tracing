@@ -1,6 +1,11 @@
+use std::vec;
+
 use tonic::{Request, Response, Status};
 
-use opentelemetry::{global, trace::Tracer};
+use opentelemetry::{
+    global,
+    trace::{Span, Tracer},
+};
 use uuid::Uuid;
 pub mod employee {
     tonic::include_proto!("employee");
@@ -13,6 +18,8 @@ use employee::{
 
 use crate::database::EmployeeDb;
 use crate::error;
+use crate::error::Error::*;
+
 use crate::models::{DbEmployee, NewDbEmployee};
 use crate::tracing;
 
@@ -55,25 +62,38 @@ impl EmployeeService for MyEmployeeService {
         let tracer = global::tracer("employee-service");
         let span = tracer.start_with_context("get_employee", parent_ctx);
 
-        let employee_id = request.into_inner().employee_id;
-        let employee_id = Uuid::parse_str(&employee_id).unwrap();
+        let request_employee_id = request.into_inner().employee_id;
+        let employee_id = Uuid::parse_str(&request_employee_id);
+        if employee_id.is_err() {
+            let error_message = format!(
+                "Invalid employee id: {}. Id must be a UUID",
+                request_employee_id
+            );
+            span.add_event(error_message.clone(), vec![]);
+            return Err(Status::invalid_argument(error_message));
+        }
+
+        let employee_id = employee_id.unwrap();
 
         let db_result = tracer.with_span(span, |_cx| -> Result<Employee, error::Error> {
             let db_client = EmployeeDb::initialize()?;
             db_client.get_employee(&employee_id).map(model_mapper)
         });
 
-        let employee = db_result.ok();
-
-        match employee {
-            Some(_) => {
-                let result = GetEmployeeResponse { employee };
+        match db_result {
+            Ok(employee) => {
+                let result = GetEmployeeResponse {
+                    employee: Some(employee),
+                };
                 Ok(Response::new(result))
             }
-            None => {
-                let message = format!("Employee with id: {} not found", employee_id);
-                Err(Status::unknown(message))
-            }
+            Err(e) => match e {
+                PostgresConnectionError(_) => Err(Status::internal("")),
+                _ => {
+                    let message = format!("Employee with id: {} not found", employee_id);
+                    Err(Status::unknown(message))
+                }
+            },
         }
     }
 
@@ -98,14 +118,17 @@ impl EmployeeService for MyEmployeeService {
             db_client.create_employee(&new_employee).map(model_mapper)
         });
 
-        let employee = db_result.ok();
-
-        match employee {
-            Some(_) => {
-                let result = CreateEmployeeResponse { employee };
+        match db_result {
+            Ok(employee) => {
+                let result = CreateEmployeeResponse {
+                    employee: Some(employee),
+                };
                 Ok(Response::new(result))
             }
-            None => Err(Status::unknown("Unable to create employee")),
+            Err(e) => match e {
+                PostgresConnectionError(_) => Err(Status::internal("")),
+                _ => Err(Status::unknown("Unable to create employee")),
+            },
         }
     }
 }
