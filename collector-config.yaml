@@ -14,7 +14,7 @@ exporters:
   zipkin:
     endpoint: "http://zipkin-all-in-one:9411/api/v2/spans"
 #   newrelic:
-#     apikey: '<<NEW_RELIC_INSIGHTS_KEY>>'
+#     apikey: <<NEW_RELIC_INSIGHTS_KEY>>
 #     timeout: 30s
 
 processors:
