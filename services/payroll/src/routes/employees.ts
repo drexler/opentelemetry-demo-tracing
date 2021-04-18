@@ -3,6 +3,7 @@ import { employeeService, paycheckService, directDepositService } from '../servi
 import * as api from '@opentelemetry/api';
 import createError from 'http-errors';
 import { convertGrpcToHttpErrorCode, getGrpcErrorMessage, formatResponse } from "../utils";
+import { HttpError} from '../models';
 
 
 export const employeesRouter = express.Router();
@@ -69,13 +70,20 @@ employeesRouter.get('/', (_request: Request, response: Response, next: NextFunct
     api.context.with(api.setSpan(api.context.active(), span), async () => {
         const traceId =  span.context().traceId;
         try {
-            const result = await employeeService.createEmployee({
-                name, 
-                address, 
-                ssn, 
-                marital_status
-            });
-            response.send(formatResponse(result.employee));
+            // TODO: use a validator library for this...
+            if (!name || !address || !ssn) {
+               next(createError(...[new HttpError(400, "Invalid input parameters")], {
+                   traceId,
+               }));
+            } else {
+                const result = await employeeService.createEmployee({
+                    name, 
+                    address, 
+                    ssn, 
+                    marital_status
+                });
+                response.send(formatResponse(result.employee));
+            }
         } catch (err) {
             next(createError(...[convertGrpcToHttpErrorCode(err)], {
                 developerMessage: getGrpcErrorMessage(err.message), 
