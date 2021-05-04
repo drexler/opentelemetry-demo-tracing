@@ -18,6 +18,7 @@
                 "SERVICE_PORT": "55056",
                 "EMPLOYEE_SERVICE_URI": "employee:50052",
                 "PAYCHECK_SERVICE_URI": "paycheck-service:50051",
+                "DIRECT_DEPOSIT_SERVICE_URI": "direct-deposit-service:50050",
                 "OTEL_COLLECTOR_URI": "http://otel-collector:4317"
             }
         }
