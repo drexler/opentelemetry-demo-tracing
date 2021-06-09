@@ -1,4 +1,12 @@
 FROM mcr.microsoft.com/dotnet/sdk:5.0 as builder
+
+RUN apt-get update \
+ && DEBIAN_FRONTEND=noninteractive \
+    apt-get install --no-install-recommends --assume-yes \
+      protobuf-compiler-grpc
+
+ENV PROTOBUF_PROTOC=/usr/bin/protoc
+
 WORKDIR /build
 COPY . ./
 RUN dotnet build "."
